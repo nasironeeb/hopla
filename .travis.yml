@@ -5,12 +5,13 @@ python:
     - "3.4" 
 
 install:
+    - pip install pprofile
+    - pip install bredala
     - pip install nose
     - pip install nose-exclude
     - pip install coverage
     - pip install coveralls
     - pip install pep8
-    - pip install bredala
     - pip install .
 
 script:
