@@ -49,7 +49,7 @@ class TestHopla(unittest.TestCase):
         print()
         log_file = tempfile.NamedTemporaryFile(suffix='.log').name
         outputdir = tempfile.mkdtemp()
-        for verbosity in [0, 0, 0]:
+        for verbosity in [0, 1, 2]:
             apath = os.path.abspath(os.path.dirname(__file__))
             script = os.path.join(os.path.dirname(demo.__file__),
                                   "my_ls_script.py")
@@ -76,7 +76,7 @@ class TestHopla(unittest.TestCase):
         for option in [{"verbose": 0}, {"v": 0}]:
             status, exitcodes = hopla(
                 script, hopla_iterative_kwargs=["d"], d=[apath, apath, apath],
-                hopla_verbose=0, hopla_cpus=2, **option)
+                hopla_verbose=1, hopla_cpus=2, **option)
             exitcode = 0
             for job_name, exitcode in exitcodes.items():
                 exitcode += exitcode
