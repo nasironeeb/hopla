@@ -13,7 +13,8 @@ from .scheduler import scheduler
 
 def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
           hopla_logfile=None, hopla_verbose=1, hopla_cluster=False,
-          hopla_cluster_logdir=None, hopla_cluster_memory=1,
+          hopla_cluster_logdir=None, hopla_cluster_queue=None,
+          hopla_cluster_memory=1, hopla_cluster_python_cmd="python",
           hopla_iterative_kwargs=None, **kwargs):
     """ Execute a Python script in parallel.
 
@@ -40,9 +41,13 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         if True use a worker that submits the jobs to a cluster.
     hopla_cluster_logdir: str (optional, default None)
         an existing path where the cluster error and output files will be
-        stored.
+        stored. This folder must be empty.
+    hopla_cluster_queue: str (optional, default None)
+        the name of the queue where the jobs will be submited.
     hopla_cluster_memory: float (optional, default 1)
         the memory allocated to each job submitted on a cluster (in GB).
+	hopla_cluster_python_cmd: str (optional, default 'python')
+        the path to the python binary.
     hopla_verbose: int (optional, default 1)
         0 - display no log in console,
         1 - display information log in console,
@@ -101,5 +106,6 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
 
     # Execute the commands with a scheduler
     return scheduler(commands, hopla_outputdir, hopla_cpus, hopla_logfile,
-                     hopla_cluster, hopla_cluster_logdir, hopla_cluster_memory,
+                     hopla_cluster, hopla_cluster_logdir, hopla_cluster_queue,
+                     hopla_cluster_memory, hopla_cluster_python_cmd,
                      hopla_verbose)

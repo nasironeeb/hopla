@@ -26,9 +26,11 @@ logger = logging.getLogger("hopla")
 
 
 def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
-              cluster_logdir=None, cluster_memory=1, verbose=1):
+              cluster_logdir=None, cluster_queue=None, cluster_memory=1,
+			  cluster_python_cmd="python", verbose=1):
     """ Execute some commands (python scripts) using a scheduler.
 
+    For local execution only:
     If the script contains a '__hopla__' list of parameter names to keep
     trace on, all the specified parameters values are stored in the execution
     status.
@@ -48,9 +50,13 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
         if True use a worker that submits the jobs to a cluster.
     cluster_logdir: str (optional, default None)
         an existing path where the cluster error and output files will be
-        stored.
+        stored. This folder must be empty.
+    cluster_queue: str (optional, default None)
+        the name of the queue where the jobs will be submited.
     cluster_memory: float (optional, default 1)
         the memory allocated to each job submitted on a cluster (in GB).
+	cluster_python_cmd: str (optional, default 'python')
+        the path to the python binary.
     verbose: int (optional, default 1)
         0 - display no log in console,
         1 - display information log in console,
@@ -124,9 +130,17 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
             if not os.path.isdir(cluster_logdir):
                 raise ValueError(
                     "'{0}' is not a valid directory.".format(cluster_logdir))
+            if len(os.listdir(cluster_logdir)) > 0:
+                raise ValueError(
+                    "'{0}' is not an empty directory.".format(cluster_logdir))
+            if cluster_queue is None:
+                raise ValueError(
+                    "In order to execute the jobs on the cluster, please "
+                    "specify an execution queue.")
             process = multiprocessing.Process(
                 target=qsub_worker, args=(tasks, returncodes, cluster_logdir,
-                                          cluster_memory))
+                                          cluster_queue, cluster_memory,
+                                          cluster_python_cmd))
         else:
             process = multiprocessing.Process(
                 target=worker, args=(tasks, returncodes))

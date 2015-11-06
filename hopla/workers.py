@@ -10,11 +10,12 @@
 # System import
 import os
 import copy
-import tempfile
 import subprocess
 import traceback
 from socket import getfqdn
 import sys
+import glob
+import time
 
 # Hopla import
 from .signals import FLAG_ALL_DONE
@@ -73,7 +74,8 @@ def worker(tasks, returncodes):
         returncodes.put(returncode)
 
 
-def qsub_worker(tasks, returncodes, logdir, memory=1):
+def qsub_worker(tasks, returncodes, logdir, queue,
+			    memory=1, python_cmd="python", sleep=2):
     """ A cluster worker function of a script.
 
     Parameters
@@ -82,8 +84,14 @@ def qsub_worker(tasks, returncodes, logdir, memory=1):
         the input (commands) and output (results) queues.
     logdir: str
         a path where the qsub error and output files will be stored.
+    queue: str
+        the name of the queue where the jobs will be submited.
     memory: float (optional, default 1)
         the memory allocated to each qsub (in GB).
+	python_cmd: str (optional, default 'python')
+        the path to the python binary.
+    sleep: float (optional, default 2)
+        time rate to check the termination of the submited jobs.
     """
 
     TEMPLATE = """
@@ -117,22 +125,33 @@ def qsub_worker(tasks, returncodes, logdir, memory=1):
         returncode[job_name]["debug"]["environ"] = environ
 
         # Execution
+        fname = os.path.join(logdir, job_name + ".pbs")
+        cmd = " ".join([python_cmd] + command)
+        errfile = os.path.join(logdir, "error." + job_name)
+        logfile = os.path.join(logdir, "output." + job_name)
         try:
-            fid = tempfile.NamedTemporaryFile(suffix=".pbs")
-            fname = fid.name
-            submit = fid.file
-            errfile = os.path.join(logdir, "error." + job_name)
-            logfile = os.path.join(logdir, "output." + job_name)
-            submit.write(TEMPLATE.format(memory=memory, name=job_name,
-                                         errfile=errfile, logfile=logfile,
-                                         command=command))
-            subprocess.check_call(["qsub", fname])
+            with open(fname, "w") as submit:
+                submit.write(
+                    TEMPLATE.format(memory=memory, name=job_name,
+                    errfile=errfile + ".$PBS_JOBID",
+                    logfile=logfile + ".$PBS_JOBID", command=cmd))
+            subprocess.check_call(["qsub", "-q", queue, fname])
+
+            # Lock everything until the qsub command has not terminated
+            while True:
+                terminated = len(glob.glob(errfile + ".*")) > 0
+                if terminated:
+                    break
+                time.sleep(sleep)
+
             returncode[job_name]["info"]["exitcode"] = "0"
         # Error
         except:
+            with open(errfile) as openfile:
+                error_message = openfile.readlines()
             returncode[job_name]["info"]["exitcode"] = (
-                "1 - '{0}'".format(traceback.format_exc()))
+                "1 - '{0}'".format(error_message))
         finally:
-            fid.close()
-            os.remove(fname)
+            pass
+
         returncodes.put(returncode)
