@@ -27,7 +27,7 @@ logger = logging.getLogger("hopla")
 
 def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
               cluster_logdir=None, cluster_queue=None, cluster_memory=1,
-			  cluster_python_cmd="python", verbose=1):
+              cluster_python_cmd="python", verbose=1):
     """ Execute some commands (python scripts) using a scheduler.
 
     For local execution only:
@@ -55,7 +55,7 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
         the name of the queue where the jobs will be submited.
     cluster_memory: float (optional, default 1)
         the memory allocated to each job submitted on a cluster (in GB).
-	cluster_python_cmd: str (optional, default 'python')
+    cluster_python_cmd: str (optional, default 'python')
         the path to the python binary.
     verbose: int (optional, default 1)
         0 - display no log in console,

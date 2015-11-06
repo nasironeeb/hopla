@@ -46,7 +46,7 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         the name of the queue where the jobs will be submited.
     hopla_cluster_memory: float (optional, default 1)
         the memory allocated to each job submitted on a cluster (in GB).
-	hopla_cluster_python_cmd: str (optional, default 'python')
+    hopla_cluster_python_cmd: str (optional, default 'python')
         the path to the python binary.
     hopla_verbose: int (optional, default 1)
         0 - display no log in console,

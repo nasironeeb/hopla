@@ -75,7 +75,7 @@ def worker(tasks, returncodes):
 
 
 def qsub_worker(tasks, returncodes, logdir, queue,
-			    memory=1, python_cmd="python", sleep=2):
+                memory=1, python_cmd="python", sleep=2):
     """ A cluster worker function of a script.
 
     Parameters
@@ -88,7 +88,7 @@ def qsub_worker(tasks, returncodes, logdir, queue,
         the name of the queue where the jobs will be submited.
     memory: float (optional, default 1)
         the memory allocated to each qsub (in GB).
-	python_cmd: str (optional, default 'python')
+    python_cmd: str (optional, default 'python')
         the path to the python binary.
     sleep: float (optional, default 2)
         time rate to check the termination of the submited jobs.
@@ -131,8 +131,8 @@ def qsub_worker(tasks, returncodes, logdir, queue,
         logfile = os.path.join(logdir, "output." + job_name)
         try:
             with open(fname, "w") as submit:
-                submit.write(
-                    TEMPLATE.format(memory=memory, name=job_name,
+                submit.write(TEMPLATE.format(
+                    memory=memory, name=job_name,
                     errfile=errfile + ".$PBS_JOBID",
                     logfile=logfile + ".$PBS_JOBID", command=cmd))
             subprocess.check_call(["qsub", "-q", queue, fname])
