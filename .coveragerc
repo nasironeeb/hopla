@@ -1,0 +1,12 @@
+[run]
+source = hopla
+
+[report]
+omit =
+    *__init__*
+    */test/*
+    hopla/demo/*
+    hopla/signals.py
+    hopla/workers.py
+    */python?.?/*
+

@@ -33,7 +33,12 @@ parser = argparse.ArgumentParser(description="List a directory.")
 parser.add_argument(
     "-d", "--dir", dest="dir", required=True, metavar="PATH",
     help="a valid directory to be listed.", type=is_directory)
+parser.add_argument(
+    "-v", "--verbose", dest="verbose", type=int, choices=[0, 1, 2], default=0,
+    help="increase the verbosity level: 0 silent, [1, 2] verbose.")
 args = parser.parse_args()
 
 directory = args.dir
 files = os.listdir(directory)
+if args.verbose > 0:
+    print(files)

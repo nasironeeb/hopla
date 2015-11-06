@@ -10,20 +10,18 @@
 # System import
 import os
 import logging
-import copy
 import json
 import multiprocessing
 
 # Hopla import
 import hopla
+from .workers import worker
+from .signals import FLAG_ALL_DONE
+from .signals import FLAG_WORKER_FINISHED_PROCESSING
 
 # Define the logger for this file
 multiprocessing.log_to_stderr(logging.CRITICAL)
-logger = logging.getLogger(__file__)
-
-# Define scheduler constant messages
-FLAG_ALL_DONE = b"WORK_FINISHED"
-FLAG_WORKER_FINISHED_PROCESSING = b"WORKER_FINISHED_PROCESSING"
+logger = logging.getLogger("hopla")
 
 
 def scheduler(commands, outputdir=None, cpus=1, log_file=None, verbose=1):
@@ -38,10 +36,10 @@ def scheduler(commands, outputdir=None, cpus=1, log_file=None, verbose=1):
     commands: list of list of str (mandatory)
         some commands to be executed: the first command element must be a
         path to a python script.
-    cpus: int (optional, default 1)
-        the number of cpus to be used.
     outputdir: str (optional, default None)
         a folder where synthetic results are written.
+    cpus: int (optional, default 1)
+        the number of cpus to be used.
     log_file: str (optional, default None)
         location where the log messages are redirected: INFO and DEBUG.
     verbose: int (optional, default 1)
@@ -79,6 +77,8 @@ def scheduler(commands, outputdir=None, cpus=1, log_file=None, verbose=1):
             console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
+    else:
+        logger.addHandler(logging.NullHandler())
 
     # Create a file handler if requested
     if log_file is not None:
@@ -174,59 +174,3 @@ def scheduler(commands, outputdir=None, cpus=1, log_file=None, verbose=1):
             json.dump(exitcodes, open_file, indent=4, sort_keys=True)
 
     return execution_status, exitcodes
-
-
-def worker(tasks, returncodes):
-    """ The worker function of a script.
-
-    If the script contains a '__hopla__' list of parameter names to keep
-    trace on, all the specified parameters values are stored in the return
-    code.
-
-    Parameters
-    ----------
-    tasks, returncodes: multiprocessing.Queue
-        the input (commands) and output (results) queues.
-    """
-    import traceback
-    from socket import getfqdn
-    import sys
-
-    while True:
-        signal = tasks.get()
-        if signal == FLAG_ALL_DONE:
-            returncodes.put(FLAG_WORKER_FINISHED_PROCESSING)
-            break
-        job_name, command = signal
-        returncode = {}
-        returncode[job_name] = {}
-        returncode[job_name]["info"] = {}
-        returncode[job_name]["debug"] = {}
-        returncode[job_name]["info"]["cmd"] = command
-        returncode[job_name]["debug"]["hostname"] = getfqdn()
-
-        # COMPATIBILITY: dict in python 2 becomes structure in pyton 3
-        python_version = sys.version_info
-        if python_version[0] < 3:
-            environ = copy.deepcopy(os.environ.__dict__)
-        else:
-            environ = copy.deepcopy(os.environ._data)
-        returncode[job_name]["debug"]["environ"] = environ
-
-        # Execution
-        try:
-            sys.argv = command
-            job_status = {}
-            with open(command[0]) as ofile:
-                exec(ofile.read(), job_status)
-            if "__hopla__" in job_status:
-                for parameter_name in job_status["__hopla__"]:
-                    if parameter_name in job_status:
-                        returncode[job_name]["info"][
-                            parameter_name] = job_status[parameter_name]
-            returncode[job_name]["info"]["exitcode"] = "0"
-        # Error
-        except:
-            returncode[job_name]["info"]["exitcode"] = (
-                "1 - '{0}'".format(traceback.format_exc()))
-        returncodes.put(returncode)

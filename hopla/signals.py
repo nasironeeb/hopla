@@ -7,7 +7,6 @@
 # for details.
 ##########################################################################
 
-# Hopla globals
-__version__ = "1.0.0"
-from .scheduler import scheduler
-from .converter import hopla
+# Define signals
+FLAG_ALL_DONE = b"WORK_FINISHED"
+FLAG_WORKER_FINISHED_PROCESSING = b"WORKER_FINISHED_PROCESSING"
