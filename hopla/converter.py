@@ -12,8 +12,9 @@ from .scheduler import scheduler
 
 
 def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
-          hopla_log_file=None, hopla_verbose=1, hopla_iterative_kwargs=None,
-          **kwargs):
+          hopla_logfile=None, hopla_verbose=1, hopla_cluster=False,
+          hopla_cluster_logdir=None, hopla_cluster_memory=1,
+          hopla_iterative_kwargs=None, **kwargs):
     """ Execute a Python script in parallel.
 
     Rules:
@@ -33,8 +34,15 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         a folder where synthetic results are written.
     hopla_cpus: int (optional, default 1)
         the number of cpus to be used.
-    hopla_log_file: str (optional, default None)
+    hopla_logfile: str (optional, default None)
         location where the log messages are redirected: INFO and DEBUG.
+    hopla_cluster: bool (optional, default False)
+        if True use a worker that submits the jobs to a cluster.
+    hopla_cluster_logdir: str (optional, default None)
+        an existing path where the cluster error and output files will be
+        stored.
+    hopla_cluster_memory: float (optional, default 1)
+        the memory allocated to each job submitted on a cluster (in GB).
     hopla_verbose: int (optional, default 1)
         0 - display no log in console,
         1 - display information log in console,
@@ -72,7 +80,9 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
             for index, val in enumerate(values):
                 if len(commands) <= index:
                     commands.append([])
-                commands[index].extend([option, str(val)])
+                commands[index].append(option)
+                if not isinstance(val, bool):
+                    commands[index].append(str(val))
     if (values_count != [] and
             values_count.count(values_count[0]) != len(values_count)):
         raise ValueError("All the iterative kwars values must have the "
@@ -85,8 +95,11 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                     option = "--" + name
                 else:
                     option = "-" + name
-                cmd.extend([option, str(value)])
+                cmd.append(option)
+                if not isinstance(value, bool):
+                    cmd.append(str(value))
 
     # Execute the commands with a scheduler
-    return scheduler(commands, hopla_outputdir, hopla_cpus, hopla_log_file,
+    return scheduler(commands, hopla_outputdir, hopla_cpus, hopla_logfile,
+                     hopla_cluster, hopla_cluster_logdir, hopla_cluster_memory,
                      hopla_verbose)

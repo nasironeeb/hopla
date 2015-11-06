@@ -47,7 +47,7 @@ class TestHopla(unittest.TestCase):
         """ Test scheduler execution.
         """
         print()
-        log_file = tempfile.NamedTemporaryFile(suffix='.log').name
+        logfile = tempfile.NamedTemporaryFile(suffix='.log').name
         outputdir = tempfile.mkdtemp()
         for verbosity in [0, 1, 2]:
             apath = os.path.abspath(os.path.dirname(__file__))
@@ -55,7 +55,7 @@ class TestHopla(unittest.TestCase):
                                   "my_ls_script.py")
             commands = [[script, "-d", apath]] * 5
             status, exitcodes = scheduler(
-                commands, cpus=1000, verbose=verbosity, log_file=log_file,
+                commands, cpus=1000, verbose=verbosity, logfile=logfile,
                 outputdir=outputdir)
             exitcode = 0
             for job_name, exitcode in exitcodes.items():
@@ -64,7 +64,7 @@ class TestHopla(unittest.TestCase):
                     pprint(status[job_name]["info"])
             self.assertEqual(exitcode, 0)
         shutil.rmtree(outputdir)
-        os.remove(log_file)
+        os.remove(logfile)
 
     def test_command_warping(self):
         """ Test command warping.

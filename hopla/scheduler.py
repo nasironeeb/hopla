@@ -16,6 +16,7 @@ import multiprocessing
 # Hopla import
 import hopla
 from .workers import worker
+from .workers import qsub_worker
 from .signals import FLAG_ALL_DONE
 from .signals import FLAG_WORKER_FINISHED_PROCESSING
 
@@ -24,7 +25,8 @@ multiprocessing.log_to_stderr(logging.CRITICAL)
 logger = logging.getLogger("hopla")
 
 
-def scheduler(commands, outputdir=None, cpus=1, log_file=None, verbose=1):
+def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
+              cluster_logdir=None, cluster_memory=1, verbose=1):
     """ Execute some commands (python scripts) using a scheduler.
 
     If the script contains a '__hopla__' list of parameter names to keep
@@ -37,11 +39,18 @@ def scheduler(commands, outputdir=None, cpus=1, log_file=None, verbose=1):
         some commands to be executed: the first command element must be a
         path to a python script.
     outputdir: str (optional, default None)
-        a folder where synthetic results are written.
+        a folder where a summary of the executed jobs are written.
     cpus: int (optional, default 1)
         the number of cpus to be used.
-    log_file: str (optional, default None)
+    logfile: str (optional, default None)
         location where the log messages are redirected: INFO and DEBUG.
+    cluster: bool (optional, default False)
+        if True use a worker that submits the jobs to a cluster.
+    cluster_logdir: str (optional, default None)
+        an existing path where the cluster error and output files will be
+        stored.
+    cluster_memory: float (optional, default 1)
+        the memory allocated to each job submitted on a cluster (in GB).
     verbose: int (optional, default 1)
         0 - display no log in console,
         1 - display information log in console,
@@ -81,14 +90,14 @@ def scheduler(commands, outputdir=None, cpus=1, log_file=None, verbose=1):
         logger.addHandler(logging.NullHandler())
 
     # Create a file handler if requested
-    if log_file is not None:
-        file_handler = logging.FileHandler(log_file, mode="a")
+    if logfile is not None:
+        file_handler = logging.FileHandler(logfile, mode="a")
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
         logger.setLevel(logging.DEBUG)
         logger.info("Processing information will be logged in file "
-                    "'{0}'.".format(log_file))
+                    "'{0}'.".format(logfile))
 
     # Information
     logger.info("Using 'hopla' version '{0}'.".format(hopla.__version__))
@@ -111,8 +120,16 @@ def scheduler(commands, outputdir=None, cpus=1, log_file=None, verbose=1):
     tasks = multiprocessing.Queue()
     returncodes = multiprocessing.Queue()
     for index in range(cpus):
-        process = multiprocessing.Process(target=worker,
-                                          args=(tasks, returncodes))
+        if cluster:
+            if not os.path.isdir(cluster_logdir):
+                raise ValueError(
+                    "'{0}' is not a valid directory.".format(cluster_logdir))
+            process = multiprocessing.Process(
+                target=qsub_worker, args=(tasks, returncodes, cluster_logdir,
+                                          cluster_memory))
+        else:
+            process = multiprocessing.Process(
+                target=worker, args=(tasks, returncodes))
         process.deamon = True
         process.start()
         workers.append(process)

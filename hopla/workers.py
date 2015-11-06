@@ -10,6 +10,11 @@
 # System import
 import os
 import copy
+import tempfile
+import subprocess
+import traceback
+from socket import getfqdn
+import sys
 
 # Hopla import
 from .signals import FLAG_ALL_DONE
@@ -28,10 +33,6 @@ def worker(tasks, returncodes):
     tasks, returncodes: multiprocessing.Queue
         the input (commands) and output (results) queues.
     """
-    import traceback
-    from socket import getfqdn
-    import sys
-
     while True:
         signal = tasks.get()
         if signal == FLAG_ALL_DONE:
@@ -69,4 +70,69 @@ def worker(tasks, returncodes):
         except:
             returncode[job_name]["info"]["exitcode"] = (
                 "1 - '{0}'".format(traceback.format_exc()))
+        returncodes.put(returncode)
+
+
+def qsub_worker(tasks, returncodes, logdir, memory=1):
+    """ A cluster worker function of a script.
+
+    Parameters
+    ----------
+    tasks, returncodes: multiprocessing.Queue
+        the input (commands) and output (results) queues.
+    logdir: str
+        a path where the qsub error and output files will be stored.
+    memory: float (optional, default 1)
+        the memory allocated to each qsub (in GB).
+    """
+
+    TEMPLATE = """
+    #!/bin/bash
+    #PBS -l mem={memory}gb,nodes=1:ppn=1,walltime=24:00:00
+    #PBS -N {name}
+    #PBS -e {errfile}
+    #PBS -o {logfile}
+    {command}
+    """
+
+    while True:
+        signal = tasks.get()
+        if signal == FLAG_ALL_DONE:
+            returncodes.put(FLAG_WORKER_FINISHED_PROCESSING)
+            break
+        job_name, command = signal
+        returncode = {}
+        returncode[job_name] = {}
+        returncode[job_name]["info"] = {}
+        returncode[job_name]["debug"] = {}
+        returncode[job_name]["info"]["cmd"] = command
+        returncode[job_name]["debug"]["hostname"] = getfqdn()
+
+        # COMPATIBILITY: dict in python 2 becomes structure in pyton 3
+        python_version = sys.version_info
+        if python_version[0] < 3:
+            environ = copy.deepcopy(os.environ.__dict__)
+        else:
+            environ = copy.deepcopy(os.environ._data)
+        returncode[job_name]["debug"]["environ"] = environ
+
+        # Execution
+        try:
+            fid = tempfile.NamedTemporaryFile(suffix=".pbs")
+            fname = fid.name
+            submit = fid.file
+            errfile = os.path.join(logdir, "error." + job_name)
+            logfile = os.path.join(logdir, "output." + job_name)
+            submit.write(TEMPLATE.format(memory=memory, name=job_name,
+                                         errfile=errfile, logfile=logfile,
+                                         command=command))
+            subprocess.check_call(["qsub", fname])
+            returncode[job_name]["info"]["exitcode"] = "0"
+        # Error
+        except:
+            returncode[job_name]["info"]["exitcode"] = (
+                "1 - '{0}'".format(traceback.format_exc()))
+        finally:
+            fid.close()
+            os.remove(fname)
         returncodes.put(returncode)
