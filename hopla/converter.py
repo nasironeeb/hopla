@@ -26,6 +26,9 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
           a '--'.
         * In order not to interfer with command line kwargs use 'hopla' prefix
           in function parameters.
+        * If the script contains a '__hopla__' list of parameter names to keep
+          trace on, all the specified parameters values are stored in the
+          execution status.
 
     Parameters
     ----------

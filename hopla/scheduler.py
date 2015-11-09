@@ -30,7 +30,6 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
               cluster_python_cmd="python", verbose=1):
     """ Execute some commands (python scripts) using a scheduler.
 
-    For local execution only:
     If the script contains a '__hopla__' list of parameter names to keep
     trace on, all the specified parameters values are stored in the execution
     status.
