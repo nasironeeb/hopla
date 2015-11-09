@@ -113,11 +113,14 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
         "    < 0 - the process was killed with a signal of -1 * exitcode."]
     logger.info("\n".join(exit_rules))
 
-    # Get the machine available cpus
-    nb_cpus = multiprocessing.cpu_count() - 1
-    nb_cpus = nb_cpus or 1
-    if max(cpus, nb_cpus) == cpus:
-        cpus = nb_cpus
+    # Get the machine available cpus for local processings
+    if not cluster:
+        nb_cpus = multiprocessing.cpu_count() - 1
+        nb_cpus = nb_cpus or 1
+        if max(cpus, nb_cpus) == cpus:
+            cpus = nb_cpus
+    else:
+        nb_cpus = cpus
 
     # Create the workers
     # Works as a FIFO with 1 cpu
