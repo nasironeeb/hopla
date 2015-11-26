@@ -119,8 +119,6 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
         nb_cpus = nb_cpus or 1
         if max(cpus, nb_cpus) == cpus:
             cpus = nb_cpus
-    else:
-        nb_cpus = cpus
 
     # Create the workers
     # Works as a FIFO with 1 cpu

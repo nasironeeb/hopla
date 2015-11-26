@@ -55,9 +55,8 @@ class TestHopla(unittest.TestCase):
                                   "my_ls_script.py")
             commands = [[script, "-d", apath]] * 5
             status, exitcodes = scheduler(
-                commands, cpus=1000, verbose=verbosity, logfile=logfile,
+                commands, cpus=200, verbose=verbosity, logfile=logfile,
                 outputdir=outputdir)
-            exitcode = 0
             for job_name, exitcode in exitcodes.items():
                 exitcode += exitcode
                 if exitcode > 0:
@@ -76,13 +75,13 @@ class TestHopla(unittest.TestCase):
         for option in [{"verbose": 0}, {"v": 0}]:
             status, exitcodes = hopla(
                 script, hopla_iterative_kwargs=["d"], d=[apath, apath, apath],
-                hopla_verbose=1, hopla_cpus=2, **option)
-            exitcode = 0
+                hopla_verbose=1, hopla_cpus=200, **option)
+            exitcode_sum = 0
             for job_name, exitcode in exitcodes.items():
-                exitcode += exitcode
-                if exitcode > 0:
+                exitcode_sum += exitcode
+                if exitcode_sum > 0:
                     pprint(status[job_name]["info"])
-            self.assertEqual(exitcode, 0)
+            self.assertEqual(exitcode_sum, 0)
 
 
 def test():

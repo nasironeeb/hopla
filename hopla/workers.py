@@ -189,6 +189,21 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                     break
                 time.sleep(sleep)
 
+            # Check that no error was produced during the submission
+            with open(glob.glob(errfile + ".*")[0]) as open_file:
+                stderr = open_file.readlines()
+            if len(stderr) > 0:
+                raise Exception("\n".join(stderr))
+
+            # Get the 'hopla' parameters to keep trace on
+            with open(glob.glob(logfile + ".*")[0]) as open_file:
+                stdout = open_file.read()
+            hopla_start = stdout.rfind("<hopla>")
+            hopla_end = stdout.rfind("</hopla>")
+            parameters_repr = stdout[hopla_start + len("<hopla>"): hopla_end]
+            parameters = json.loads(
+                parameters_repr.strip("\n").replace("'", '"'))
+
             # Get the 'hopla' parameters to keep trace on
             with open(glob.glob(logfile + ".*")[0]) as open_file:
                 stdout = open_file.read()
@@ -211,7 +226,4 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                 error_message = traceback.format_exc()
             returncode[job_name]["info"]["exitcode"] = (
                 "1 - '{0}'".format(error_message))
-        finally:
-            pass
-
         returncodes.put(returncode)
