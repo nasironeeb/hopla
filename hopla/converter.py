@@ -104,7 +104,9 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                 else:
                     option = "-" + name
                 cmd.append(option)
-                if not isinstance(value, bool):
+                if isinstance(value, list):
+                    cmd.extend([str(item) for item in value])
+                elif not isinstance(value, bool):
                     cmd.append(str(value))
 
     # Execute the commands with a scheduler
