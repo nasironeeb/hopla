@@ -72,6 +72,9 @@ the scheduler execution log. This mechanism is usefull to keep trace of
 important script elements (ie., the outputs). The scaled execution of this
 script on two CPUs is realized using a simple call::
 
+    from hopla.converter import hopla
+    import hopla.demo as demo
+
     apath = os.path.abspath(os.path.dirname(__file__))
     script = os.path.join(os.path.dirname(demo.__file__),
                           "my_ls_script.py")
