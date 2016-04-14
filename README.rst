@@ -1,9 +1,20 @@
-.. image:: https://travis-ci.org/AGrigis/hopla.svg?branch=master
-    :target: https://travis-ci.org/AGrigis/hopla
 
+|Travis|_ |Coveralls|_ |Python27|_ |Python34|_ |PyPi|_ 
 
-.. image:: https://coveralls.io/repos/AGrigis/hopla/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/AGrigis/hopla
+.. |Travis| image:: https://travis-ci.org/AGrigis/hopla.svg?branch=master
+.. _Travis: https://travis-ci.org/AGrigis/hopla
+
+.. |Coveralls| image:: https://coveralls.io/repos/AGrigis/hopla/badge.svg?branch=master&service=github
+.. _Coveralls: https://coveralls.io/github/AGrigis/hopla
+
+.. |Python27| image:: https://img.shields.io/badge/python-2.7-blue.svg
+.. _Python27: https://badge.fury.io/py/hopla
+
+.. |Python34| image:: https://img.shields.io/badge/python-3.4-blue.svg
+.. _Python34: https://badge.fury.io/py/hopla
+
+.. |PyPi| image:: https://badge.fury.io/py/hopla.svg
+.. _PyPi: https://badge.fury.io/py/hopla
 
 
 Easy to use pure-Python scheduler.
@@ -114,7 +125,7 @@ has been displayed::
 Perspectives
 ============
 
-It will be nice add generalize some concepts (ie., accept different kind
+It will be nice to generalize some concepts (ie., accept different kind
 of script).
 
 
