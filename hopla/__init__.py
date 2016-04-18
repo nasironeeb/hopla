@@ -8,6 +8,8 @@
 ##########################################################################
 
 # Hopla globals
-__version__ = "1.0.0"
+from .info import DESCRIPTION, __version__
 from .scheduler import scheduler
 from .converter import hopla
+
+__doc__ = DESCRIPTION

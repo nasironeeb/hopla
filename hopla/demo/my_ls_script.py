@@ -8,9 +8,12 @@
 ##########################################################################
 
 # Bredala import
-import bredala
-bredala.USE_PROFILER = False
-bredala.register("os.path", names=["listdir"])
+try:
+    import bredala
+    bredala.USE_PROFILER = False
+    bredala.register("os.path", names=["listdir"])
+except:
+    pass
 
 # System import
 import argparse

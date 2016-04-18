@@ -23,7 +23,7 @@ logger.addHandler(logging.NullHandler())
 # Apparently the 'hopla' modules must be imported after coverage is started.
 from hopla.scheduler import scheduler
 from hopla.converter import hopla
-import hopla.demo as demo
+import hopla as root
 
 
 class TestHopla(unittest.TestCase):
@@ -33,7 +33,7 @@ class TestHopla(unittest.TestCase):
         """ Test dead ends.
         """
         print()
-        script = os.path.join(os.path.dirname(demo.__file__),
+        script = os.path.join(os.path.dirname(root.__file__), "demo",
                               "my_ls_script.py")
         self.assertRaises(Exception, scheduler, [])
         self.assertRaises(
@@ -51,7 +51,7 @@ class TestHopla(unittest.TestCase):
         outputdir = tempfile.mkdtemp()
         for verbosity in [0, 1, 2]:
             apath = os.path.abspath(os.path.dirname(__file__))
-            script = os.path.join(os.path.dirname(demo.__file__),
+            script = os.path.join(os.path.dirname(root.__file__), "demo",
                                   "my_ls_script.py")
             commands = [[script, "-d", apath]] * 5
             status, exitcodes = scheduler(
@@ -70,8 +70,9 @@ class TestHopla(unittest.TestCase):
         """
         print()
         apath = os.path.abspath(os.path.dirname(__file__))
-        script = os.path.join(os.path.dirname(demo.__file__),
+        script = os.path.join(os.path.dirname(root.__file__), "demo",
                               "my_ls_script.py")
+        print(script)
         for option in [{"verbose": 0}, {"v": 0}]:
             status, exitcodes = hopla(
                 script, hopla_iterative_kwargs=["d"], d=[apath, apath, apath],

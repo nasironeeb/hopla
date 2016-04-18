@@ -25,10 +25,10 @@ setup(
     author="Antoine Grigis",
     author_email="antoine.grigis@cea.fr",
     description=next(x for x in description.splitlines() if x.strip()),
-    long_description='.. contents::\n\n' + description,
+    long_description=".. contents::\n\n" + description,
     url="http://github.com/AGrigis/hopla",
-    license='GPL 2+',
-    platforms=['any'],
+    license="GPL 2+",
+    platforms=["any"],
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v2 or "

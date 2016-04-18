@@ -1,11 +1,17 @@
-#! /usr/bin/env python
 ##########################################################################
-# Hopla - Copyright (C) AGrigis, 2015
+# Hopla - Copyright (C) AGrigis, 2015 - 2016
 # Distributed under the terms of the CeCILL-B license, as published by
 # the CEA-CNRS-INRIA. Refer to the LICENSE file or to
 # http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 # for details.
 ##########################################################################
+
+"""
+This module proposes a local worker and a distant TORQUE worker. The two
+proposed workers are able to follow a '__hopla__' list of parameter
+names to keep trace on. All specified parameters values are stored in the
+execution status.
+"""
 
 # System import
 import os
@@ -77,7 +83,7 @@ def worker(tasks, returncodes):
 
 PBS_TEMPLATE = """
 #!/bin/bash
-#PBS -l mem={memory}gb,nodes=1:ppn=1,walltime=24:00:00
+#PBS -l mem={memory}gb,nodes=1:ppn=1,walltime={hwalltime}:00:00
 #PBS -N {name}
 #PBS -e {errfile}
 #PBS -o {logfile}
@@ -115,7 +121,7 @@ print("</hopla>")
 
 
 def qsub_worker(tasks, returncodes, logdir, queue,
-                memory=1, python_cmd="python", sleep=2):
+                memory=1, walltime=24, python_cmd="python", sleep=2):
     """ A cluster worker function for a script.
 
     Use the TORQUE resource manager provides control over batch jobs and
@@ -137,6 +143,8 @@ def qsub_worker(tasks, returncodes, logdir, queue,
         the name of the queue where the jobs will be submited.
     memory: float (optional, default 1)
         the memory allocated to each qsub (in GB).
+    walltime: int (optional, default 24)
+        the walltime used for each job submitted on the cluster (in hours).
     python_cmd: str (optional, default 'python')
         the path to the python binary.
     sleep: float (optional, default 2)
@@ -175,7 +183,7 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                 open_file.write(PY_TEMPLATE.format(cmd=command))
             with open(fname_pbs, "w") as open_file:
                 open_file.write(PBS_TEMPLATE.format(
-                    memory=memory, name=job_name,
+                    memory=memory, hwalltime=walltime, name=job_name,
                     errfile=errfile + ".$PBS_JOBID",
                     logfile=logfile + ".$PBS_JOBID", command=pbs_cmd))
 
