@@ -17,7 +17,8 @@
 .. _PyPi: https://badge.fury.io/py/hopla
 
 
-Easy to use pure-Python scheduler.
+Easy to use pure-Python scheduler. Visit also the
+`API documentation <https://AGrigis.github.io/hopla/>`_.
 
 Overview
 ========
