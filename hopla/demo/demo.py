@@ -22,12 +22,14 @@ script = os.path.join(apath, "my_ls_script.py")
 cluster_logdir = os.path.join(apath, "pbs_logs")
 
 # Local execution
+print("-------", "local execution")
 status, exitcodes = hopla(
-    script, d=[apath, apath, apath], b=False, v=1, l=[1, 2],
+    script, d=[apath, apath, apath], b=False, v=0, l=[1, 2],
     hopla_iterative_kwargs=["d"], hopla_verbose=1, hopla_cpus=10)
 pprint(exitcodes)
 
 # Local execution with optional arguments
+print("-------", "local execution with optional arguments")
 status, exitcodes = hopla(
     script, dir=[apath, apath, apath], b=False, verbose=1, mylist=[1, 2],
     hopla_iterative_kwargs=["dir"], hopla_verbose=1, hopla_cpus=10,
@@ -35,6 +37,7 @@ status, exitcodes = hopla(
 pprint(exitcodes)
 
 # Local execution with boolean iter
+print("-------", "local execution with boolean iter")
 status, exitcodes = hopla(
     script, dir=[apath, apath, apath], b=[False, True, False], verbose=1,
     mylist=[1, 2],
@@ -43,6 +46,7 @@ status, exitcodes = hopla(
 pprint(exitcodes)
 
 # Local execution with list iter
+print("-------", "local execution with list iter")
 status, exitcodes = hopla(
     script, dir=[apath, apath, apath], b=False, verbose=1,
     mylist=[[1, 2], [2, 3], [3, 4]],
@@ -51,6 +55,7 @@ status, exitcodes = hopla(
 pprint(exitcodes)
 
 # Local execution with log
+print("-------", "local execution with log")
 status, exitcodes = hopla(
     script, dir=[apath, apath, apath], b=[False, True, False], verbose=1,
     mylist=[1, 2],
@@ -60,6 +65,7 @@ status, exitcodes = hopla(
 pprint(exitcodes)
 
 # Cluster execution
+print("-------", "cluster execution")
 status, exitcodes = hopla(
     script, dir=[apath, apath, apath], b=[False, True, False], verbose=1,
     mylist=[1, 2],
