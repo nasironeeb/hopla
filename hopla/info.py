@@ -68,8 +68,6 @@ latter is available in the 'hopla.demo.my_ls_script' module)::
 
 
     def is_directory(dirarg):
-        """ Type for argparse - checks that directory exists.
-        """
         if not os.path.isdir(dirarg):
             raise argparse.ArgumentError(
                 "The directory '{0}' does not exist!".format(dirarg))

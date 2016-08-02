@@ -173,5 +173,3 @@ Perspectives
 It will be nice to generalize some concepts (ie., accept different kind
 of scripts).
 
-
-
