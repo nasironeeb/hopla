@@ -11,26 +11,29 @@ This module contains a 'hopla' function used to create a list of commands
 that will be executed in parallel using the local machine or cluster with
 TORQUE resource manager installed. For the moment, the input script must be
 a Python script.
-"""
+"""  # pragma: no cover
+
+# System import
+from collections import OrderedDict  # pragma: no cover
 
 # Hopla import
-from .scheduler import scheduler
+from .scheduler import scheduler  # pragma: no cover
 
 
 def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
-          hopla_logfile=None, hopla_verbose=1, hopla_cluster=False,
-          hopla_cluster_logdir=None, hopla_cluster_queue=None,
-          hopla_cluster_memory=1, hopla_cluster_walltime=24,
-          hopla_cluster_python_cmd="python", hopla_iterative_kwargs=None,
-          **kwargs):
+          hopla_optional=None, hopla_logfile=None, hopla_verbose=1,
+          hopla_cluster=False, hopla_cluster_logdir=None,
+          hopla_cluster_queue=None, hopla_cluster_memory=1,
+          hopla_cluster_walltime=72, hopla_cluster_python_cmd="python",
+          hopla_iterative_kwargs=None, **kwargs):
     """ Execute a python script/file in parallel.
 
     Rules:
 
         * This procedure enables local or cluster runs.
         * This procedure returns a human readable log.
-        * In the command line, prefix one character kwargs with a '-', the
-          other with a '--'.
+        * In the command line, prefix kwargs with a '-' if name not in
+          'hopla_optional' list, otherwise with a '--'.
         * In order not to interfer with command line kwargs use 'hopla' prefix
           in function parameters.
         * If the script contains a '__hopla__' list of parameter names to keep
@@ -45,6 +48,9 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         a folder where synthetic results are written.
     hopla_cpus: int (optional, default 1)
         the number of cpus to be used.
+    hopla_optional: list of str (optional, default None)
+        the optional kwagrs names that will be prefixed with '--' in the
+        command line.
     hopla_logfile: str (optional, default None)
         location where the log messages are redirected: INFO and DEBUG.
     hopla_verbose: int (optional, default 1)
@@ -60,7 +66,7 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         the name of the queue where the jobs will be submited.
     hopla_cluster_memory: float (optional, default 1)
         the memory allocated to each job submitted on a cluster (in GB).
-    hopla_cluster_walltime: int (optional, default 24)
+    hopla_cluster_walltime: int (optional, default 72)
         the walltime used for each job submitted on the cluster (in hours).
     hopla_cluster_python_cmd: str (optional, default 'python')
         the path to the python binary.
@@ -78,11 +84,16 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
     exitcodes: dict
         a dictionary with a summary of the executed jobs exit codes.
     """
+    # Function parameters
+    hopla_optional = hopla_optional or []
+
     # Create the commands to be executed by the scheduler
     iterative_kwargs = hopla_iterative_kwargs or []
     commands = []
     values_count = []
-    # > deal kwargswith iterative kwargs
+    # > sort kwargs
+    kwargs = OrderedDict(sorted(list(kwargs.items())))
+    # > deal kwargs with iterative kwargs
     for name, values in kwargs.items():
         if name in iterative_kwargs:
             if not isinstance(values, list):
@@ -90,40 +101,56 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                     "All the iterative kwargs must be of list type. Parameter "
                     "'{0}' with value '{1}' does not fulfill this "
                     "rule.".format(name, values))
-            # > in the command line, prefix one character kwargs with '-', the
-            #   other with '--'
-            if len(name) > 1:
-                option = "--" + name
-            else:
-                option = "-" + name
             values_count.append(len(values))
             for index, val in enumerate(values):
                 if len(commands) <= index:
                     commands.append([])
-                commands[index].append(option)
-                if not isinstance(val, bool):
-                    commands[index].append(str(val))
+                # > in the command line, prefix kwargs with '-',
+                # optional kwargs with '--'
+                if name in hopla_optional:
+                    option = ["--" + name]
+                else:
+                    option = ["-" + name]
+                # > set the option value
+                if isinstance(val, list):
+                    option.extend([str(item) for item in val])
+                elif not isinstance(val, bool):
+                    option.append(str(val))
+                # > set the option in the command line: for boolean set the
+                # option only if the value is true
+                if isinstance(val, bool):
+                    if val:
+                        commands[index].extend(option)
+                else:
+                    commands[index].extend(option)
     # > check iterative kwargs values have the same length
     if (values_count != [] and
             values_count.count(values_count[0]) != len(values_count)):
-        raise ValueError("All the iterative kwars values must have the "
+        raise ValueError("All the iterative kwargs must have the "
                          "same number of values in order to iterate.")
     # > add script name to command line and deal with non iterative kwargs
     for cmd in commands:
         cmd.insert(0, python_script)
         for name, value in kwargs.items():
             if name not in iterative_kwargs:
-                # > in the command line, prefix one character kwargs with '-',
-                # the other with '--'
-                if len(name) > 1:
-                    option = "--" + name
+                # > in the command line, prefix kwargs with '-',
+                # optional kwargs with '--'
+                if name in hopla_optional:
+                    option = ["--" + name]
                 else:
-                    option = "-" + name
-                cmd.append(option)
+                    option = ["-" + name]
+                # > set the option value
                 if isinstance(value, list):
-                    cmd.extend([str(item) for item in value])
+                    option.extend([str(item) for item in value])
                 elif not isinstance(value, bool):
-                    cmd.append(str(value))
+                    option.append(str(value))
+                # > set the option in the command line: for boolean set the
+                # option only if the value is true
+                if isinstance(value, bool):
+                    if value:
+                        cmd.extend(option)
+                else:
+                    cmd.extend(option)
 
     # Execute the commands with a scheduler in order to control the execution
     # load
