@@ -11,22 +11,22 @@ This module proposes a local worker and a distant TORQUE worker. The two
 proposed workers are able to follow a '__hopla__' list of parameter
 names to keep trace on. All specified parameters values are stored in the
 execution status.
-"""
+"""  # pragma: no cover
 
 # System import
-import os
-import copy
-import subprocess
-import traceback
-from socket import getfqdn
-import sys
-import glob
-import time
-import json
+import os  # pragma: no cover
+import copy  # pragma: no cover
+import subprocess  # pragma: no cover
+import traceback  # pragma: no cover
+from socket import getfqdn  # pragma: no cover
+import sys  # pragma: no cover
+import glob  # pragma: no cover
+import time  # pragma: no cover
+import json  # pragma: no cover
 
 # Hopla import
-from .signals import FLAG_ALL_DONE
-from .signals import FLAG_WORKER_FINISHED_PROCESSING
+from .signals import FLAG_ALL_DONE  # pragma: no cover
+from .signals import FLAG_WORKER_FINISHED_PROCESSING  # pragma: no cover
 
 
 def worker(tasks, returncodes):
@@ -68,16 +68,18 @@ def worker(tasks, returncodes):
             job_status = {}
             with open(command[0]) as ofile:
                 exec(ofile.read(), job_status)
-            if "__hopla__" in job_status:
-                for parameter_name in job_status["__hopla__"]:
-                    if parameter_name in job_status:
-                        returncode[job_name]["info"][
-                            parameter_name] = job_status[parameter_name]
             returncode[job_name]["info"]["exitcode"] = "0"
         # Error
         except:
             returncode[job_name]["info"]["exitcode"] = (
                 "1 - '{0}'".format(traceback.format_exc()))
+        # Follow '__hopla__' script parameters
+        finally:
+            if "__hopla__" in job_status:
+                for parameter_name in job_status["__hopla__"]:
+                    if parameter_name in job_status:
+                        returncode[job_name]["info"][
+                            parameter_name] = job_status[parameter_name]
         returncodes.put(returncode)
 
 
@@ -88,7 +90,7 @@ PBS_TEMPLATE = """
 #PBS -e {errfile}
 #PBS -o {logfile}
 {command}
-"""
+"""  # pragma: no cover
 
 
 PY_TEMPLATE = """
@@ -98,26 +100,28 @@ import json
 
 
 # Execute the command line in the 'job_status' environment
-command = {cmd}
-sys.argv = command
-job_status = dict()
-parameters = dict()
-with open(command[0]) as ofile:
-    exec(ofile.read(), job_status)
-
-# Check for the parameters to keep trace on (the parameters specified in the
-# '__hopla__' cariable
-if "__hopla__" in job_status:
-    for parameter_name in job_status["__hopla__"]:
-        if parameter_name in job_status:
-            parameters[parameter_name] = job_status[parameter_name]
-
-# Print the parameters to keep trace on in order to communicate with the
-# scheduler and in order to generate a complete log
-print("<hopla>")
-print(parameters)
-print("</hopla>")
-"""
+try:
+    command = {cmd}
+    sys.argv = command
+    job_status = dict()
+    with open(command[0]) as ofile:
+        exec(ofile.read(), job_status)
+# Error
+except:
+    raise
+# Follow '__hopla__' script parameters: print the parameters to keep trace on
+# in '<hopla>...</hopla>' div in order to communicate with the scheduler and
+# in order to generate a complete log
+finally:
+    parameters = dict()
+    if "__hopla__" in job_status:
+        for parameter_name in job_status["__hopla__"]:
+            if parameter_name in job_status:
+                parameters[parameter_name] = job_status[parameter_name]
+    print("<hopla>")
+    print(json.dumps(parameters))
+    print("</hopla>")
+"""  # pragma: no cover
 
 
 def qsub_worker(tasks, returncodes, logdir, queue,
@@ -203,27 +207,7 @@ def qsub_worker(tasks, returncodes, logdir, queue,
             if len(stderr) > 0:
                 raise Exception("\n".join(stderr))
 
-            # Get the 'hopla' parameters to keep trace on
-            with open(glob.glob(logfile + ".*")[0]) as open_file:
-                stdout = open_file.read()
-            hopla_start = stdout.rfind("<hopla>")
-            hopla_end = stdout.rfind("</hopla>")
-            parameters_repr = stdout[hopla_start + len("<hopla>"): hopla_end]
-            parameters = json.loads(
-                parameters_repr.strip("\n").replace("'", '"'))
-
-            # Get the 'hopla' parameters to keep trace on
-            with open(glob.glob(logfile + ".*")[0]) as open_file:
-                stdout = open_file.read()
-            hopla_start = stdout.rfind("<hopla>")
-            hopla_end = stdout.rfind("</hopla>")
-            parameters_repr = stdout[hopla_start + len("<hopla>"): hopla_end]
-            parameters = json.loads(
-                parameters_repr.strip("\n").replace("'", '"'))
-
             # Update the return code
-            for name, value in parameters.items():
-                returncode[job_name]["info"][name] = value
             returncode[job_name]["info"]["exitcode"] = "0"
         # Error
         except:
@@ -234,4 +218,19 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                 error_message = traceback.format_exc()
             returncode[job_name]["info"]["exitcode"] = (
                 "1 - '{0}'".format(error_message))
+        # Follow '__hopla__' script parameters in pbs '<hopla>...</hopla>'
+        # output
+        finally:
+            pbs_logfiles = glob.glob(logfile + ".*")
+            if len(pbs_logfiles) == 1:
+                with open(pbs_logfiles[0]) as open_file:
+                    stdout = open_file.read()
+                hopla_start = stdout.rfind("<hopla>")
+                hopla_end = stdout.rfind("</hopla>")
+                parameters_repr = stdout[
+                    hopla_start + len("<hopla>"): hopla_end]
+                parameters = json.loads(parameters_repr)
+                for name, value in parameters.items():
+                    returncode[job_name]["info"][name] = value
+
         returncodes.put(returncode)
