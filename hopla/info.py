@@ -7,16 +7,19 @@
 # for details.
 ##########################################################################
 
+# pragma: no cover
+
 # Pysphinxdoc current version
-version_major = 1
-version_minor = 0
-version_micro = 1
+version_major = 1  # pragma: no cover
+version_minor = 0  # pragma: no cover
+version_micro = 2  # pragma: no cover
 
 # Expected by setup.py: string of form "X.Y.Z"
-__version__ = "{0}.{1}.{2}".format(version_major, version_minor, version_micro)
+__version__ = "{0}.{1}.{2}".format(
+    version_major, version_minor, version_micro)  # pragma: no cover
 
 # Project descriptions
-DESCRIPTION = "[hopla] Easy to use pure-Python scheduler."
+DESCRIPTION = "[hopla] Easy to use pure-Python scheduler."  # pragma: no cover
 LONG_DESCRIPTION = """
 Easy to use pure-Python scheduler.
 
@@ -154,14 +157,14 @@ Perspectives
 ============
 
 It will be nice to generalize some concepts (ie., accept different kind
-of script).
-"""
+of scripts).
+"""  # pragma: no cover
 
 # Main setup parameters
-NAME = "hopla"
-AUTHOR = "Antoine Grigis"
-AUTHOR_EMAIL = "antoine.grigis@cea.fr"
-URL = "https://github.com/AGrigis/hopla"
-DOWNLOAD_URL = "https://github.com/AGrigis/hopla"
-LICENSE = "GPL 2+"
-VERSION = __version__
+NAME = "hopla"  # pragma: no cover
+AUTHOR = "Antoine Grigis"  # pragma: no cover
+AUTHOR_EMAIL = "antoine.grigis@cea.fr"  # pragma: no cover
+URL = "https://github.com/AGrigis/hopla"  # pragma: no cover
+DOWNLOAD_URL = "https://github.com/AGrigis/hopla"  # pragma: no cover
+LICENSE = "GPL 2+"  # pragma: no cover
+VERSION = __version__  # pragma: no cover
