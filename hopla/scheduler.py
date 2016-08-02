@@ -9,24 +9,24 @@
 """
 This module proposes a simple scheduler used to execute a list of tasks
 controlling the machine load.
-"""
+"""  # pragma: no cover
 
 # System import
-import os
-import logging
-import json
-import multiprocessing
+import os  # pragma: no cover
+import logging  # pragma: no cover
+import json  # pragma: no cover
+import multiprocessing  # pragma: no cover
 
 # Hopla import
-import hopla
-from .workers import worker
-from .workers import qsub_worker
-from .signals import FLAG_ALL_DONE
-from .signals import FLAG_WORKER_FINISHED_PROCESSING
+import hopla  # pragma: no cover
+from .workers import worker  # pragma: no cover
+from .workers import qsub_worker  # pragma: no cover
+from .signals import FLAG_ALL_DONE  # pragma: no cover
+from .signals import FLAG_WORKER_FINISHED_PROCESSING  # pragma: no cover
 
 # Define the logger for this file
-multiprocessing.log_to_stderr(logging.CRITICAL)
-logger = logging.getLogger("hopla")
+multiprocessing.log_to_stderr(logging.CRITICAL)  # pragma: no cover
+logger = logging.getLogger("hopla")  # pragma: no cover
 
 
 def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
@@ -133,9 +133,10 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
     returncodes = multiprocessing.Queue()
     for index in range(cpus):
         if cluster:
-            if not os.path.isdir(cluster_logdir):
+            if cluster_logdir is None or not os.path.isdir(cluster_logdir):
                 raise ValueError(
-                    "'{0}' is not a valid directory.".format(cluster_logdir))
+                    "'{0}' is not a valid directory to set cluster "
+                    "logs.".format(cluster_logdir))
             if len(os.listdir(cluster_logdir)) > 0:
                 raise ValueError(
                     "'{0}' is not an empty directory.".format(cluster_logdir))
@@ -162,7 +163,7 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
     try:
         # Assert something has to be executed
         if len(commands) == 0:
-            raise Exception("Nothing to execute.")
+            raise ValueError("Nothing to execute.")
 
         # Add all the jobs to the 'tasks' queue
         for cnt, cmd in enumerate(commands):
