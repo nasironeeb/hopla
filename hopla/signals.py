@@ -9,8 +9,9 @@
 
 """
 This module defines the scheduler signals.
-"""
+"""  # pragma: no cover
 
 # Define signals
-FLAG_ALL_DONE = b"WORK_FINISHED"
-FLAG_WORKER_FINISHED_PROCESSING = b"WORKER_FINISHED_PROCESSING"
+FLAG_ALL_DONE = b"WORK_FINISHED"  # pragma: no cover
+FLAG_WORKER_FINISHED_PROCESSING = (
+    b"WORKER_FINISHED_PROCESSING")  # pragma: no cover

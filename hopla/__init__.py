@@ -8,8 +8,8 @@
 ##########################################################################
 
 # Hopla globals
-from .info import DESCRIPTION, __version__
-from .scheduler import scheduler
-from .converter import hopla
+from .info import DESCRIPTION, __version__  # pragma: no cover
+from .scheduler import scheduler  # pragma: no cover
+from .converter import hopla  # pragma: no cover
 
-__doc__ = DESCRIPTION
+__doc__ = DESCRIPTION  # pragma: no cover
