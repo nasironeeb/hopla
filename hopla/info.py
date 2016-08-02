@@ -86,7 +86,8 @@ latter is available in the 'hopla.demo.my_ls_script' module)::
         "-l", "--mylist", dest="mylist", nargs="+", type=int, required=True,
         help="a list that will be printed.")
     parser.add_argument(
-        "-v", "--verbose", dest="verbose", type=int, choices=[0, 1, 2], default=0,
+        "-v", "--verbose", dest="verbose", type=int, choices=[0, 1, 2],
+        default=0,
         help="increase the verbosity level: 0 silent, [1, 2] verbose.")
     args = parser.parse_args()
 
@@ -125,7 +126,8 @@ realized using a simple call::
     import hopla as root
 
     # Define script parameters
-    apath = os.path.join(os.path.abspath(os.path.dirname(root.__file__)), "demo")
+    apath = os.path.join(os.path.abspath(os.path.dirname(root.__file__)),
+                         "demo")
     script = os.path.join(apath, "my_ls_script.py")
 
     # Local execution
@@ -145,27 +147,50 @@ has been displayed::
         = 0 - no error was produced.
         > 0 - the process had an error, and exited with that code.
         < 0 - the process was killed with a signal of -1 * exitcode.
-    2016-08-02 15:59:26,927 - INFO - job_0.inputs = {'directory': '/home/ag239446/git/hopla/hopla/demo', 'break_flag': False, 'mylist': [1, 2]}
+    2016-08-02 15:59:26,927 - INFO - job_0.inputs = {
+        'directory': '/home/ag239446/git/hopla/hopla/demo',
+        'break_flag': False,
+        'mylist': [1, 2]}
     2016-08-02 15:59:26,928 - INFO - job_0.exitcode = 0
-    2016-08-02 15:59:26,928 - INFO - job_0.cmd = ['/home/ag239446/git/hopla/hopla/demo/my_ls_script.py', '--dir', '/home/ag239446/git/hopla/hopla/demo', '--mylist', '1', '2', '--verbose', '1']
-    2016-08-02 15:59:26,928 - INFO - job_0.outputs = {'files': ['my_ls_script.py', 'demo.py']}
-    2016-08-02 15:59:26,928 - INFO - job_0.runtime = {'timestamp': '2016-08-02T15:59:26.926153'}
-    2016-08-02 15:59:26,928 - INFO - job_1.inputs = {'directory': '/home/ag239446/git/hopla/hopla/demo', 'break_flag': True, 'mylist': [1, 2]}
-    2016-08-02 15:59:26,929 - INFO - job_1.exitcode = 1 - 'Traceback (most recent call last):
+    2016-08-02 15:59:26,928 - INFO - job_0.cmd = [
+        '/home/ag239446/git/hopla/hopla/demo/my_ls_script.py', '--dir',
+        '/home/ag239446/git/hopla/hopla/demo', '--mylist', '1', '2',
+        '--verbose', '1']
+    2016-08-02 15:59:26,928 - INFO - job_0.outputs = {
+        'files': ['my_ls_script.py', 'demo.py']}
+    2016-08-02 15:59:26,928 - INFO - job_0.runtime = {
+        'timestamp': '2016-08-02T15:59:26.926153'}
+    2016-08-02 15:59:26,928 - INFO - job_1.inputs = {
+        'directory': '/home/ag239446/git/hopla/hopla/demo',
+        'break_flag': True,
+        'mylist': [1, 2]}
+    2016-08-02 15:59:26,929 - INFO - job_1.exitcode = 1 - 'Traceback (most
+      recent call last):
       File "/home/ag239446/git/hopla/hopla/workers.py", line 70, in worker
         exec(ofile.read(), job_status)
       File "<string>", line 65, in <module>
     ValueError: BREAK ACTIVATED.
     '
-    2016-08-02 15:59:26,929 - INFO - job_1.cmd = ['/home/ag239446/git/hopla/hopla/demo/my_ls_script.py', '-b', '--dir', '/home/ag239446/git/hopla/hopla/demo', '--mylist', '1', '2', '--verbose', '1']
+    2016-08-02 15:59:26,929 - INFO - job_1.cmd = [
+        '/home/ag239446/git/hopla/hopla/demo/my_ls_script.py', '-b', '--dir',
+        '/home/ag239446/git/hopla/hopla/demo', '--mylist', '1', '2',
+        '--verbose', '1']
     2016-08-02 15:59:26,929 - INFO - job_1.outputs = None
-    2016-08-02 15:59:26,929 - INFO - job_1.runtime = {'timestamp': '2016-08-02T15:59:26.926772'}
-    2016-08-02 15:59:26,979 - INFO - job_2.inputs = {'directory': '/home/ag239446/git/hopla/hopla/demo', 'break_flag': False, 'mylist': [1, 2]}
+    2016-08-02 15:59:26,929 - INFO - job_1.runtime = {
+        'timestamp': '2016-08-02T15:59:26.926772'}
+    2016-08-02 15:59:26,979 - INFO - job_2.inputs = {
+        'directory': '/home/ag239446/git/hopla/hopla/demo',
+        'break_flag': False,
+        'mylist': [1, 2]}
     2016-08-02 15:59:26,979 - INFO - job_2.exitcode = 0
-    2016-08-02 15:59:26,979 - INFO - job_2.cmd = ['/home/ag239446/git/hopla/hopla/demo/my_ls_script.py', '--dir', '/home/ag239446/git/hopla/hopla/demo', '--mylist', '1', '2', '--verbose', '1']
-    2016-08-02 15:59:26,979 - INFO - job_2.outputs = {'files': ['my_ls_script.py', 'demo.py']}
-    2016-08-02 15:59:26,979 - INFO - job_2.runtime = {'timestamp': '2016-08-02T15:59:26.969334'}
-    {'job_0': 0, 'job_1': 1, 'job_2': 0}
+    2016-08-02 15:59:26,979 - INFO - job_2.cmd = [
+        '/home/ag239446/git/hopla/hopla/demo/my_ls_script.py', '--dir',
+        '/home/ag239446/git/hopla/hopla/demo', '--mylist', '1', '2',
+        '--verbose', '1']
+    2016-08-02 15:59:26,979 - INFO - job_2.outputs = {
+        'files': ['my_ls_script.py', 'demo.py']}
+    2016-08-02 15:59:26,979 - INFO - job_2.runtime = {
+        'timestamp': '2016-08-02T15:59:26.969334'}
 
 
 Perspectives
