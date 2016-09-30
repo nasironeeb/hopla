@@ -229,7 +229,10 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                 hopla_end = stdout.rfind("</hopla>")
                 parameters_repr = stdout[
                     hopla_start + len("<hopla>"): hopla_end]
-                parameters = json.loads(parameters_repr)
+                try:
+                    parameters = json.loads(parameters_repr)
+                except:
+                    parameters = {}
                 for name, value in parameters.items():
                     returncode[job_name]["info"][name] = value
 
