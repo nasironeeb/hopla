@@ -103,6 +103,8 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                     "rule.".format(name, values))
             values_count.append(len(values))
             for index, val in enumerate(values):
+                if val is None:
+                    continue
                 if len(commands) <= index:
                     commands.append([])
                 # > in the command line, prefix kwargs with '-',
@@ -133,6 +135,9 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         cmd.insert(0, python_script)
         for name, value in kwargs.items():
             if name not in iterative_kwargs:
+                # > skip None value
+                if value is None:
+                    continue
                 # > in the command line, prefix kwargs with '-',
                 # optional kwargs with '--'
                 if name in hopla_optional:

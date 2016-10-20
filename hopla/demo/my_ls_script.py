@@ -38,6 +38,9 @@ required = parser.add_argument_group("required arguments")
 required.add_argument(
     "-d", "--dir", dest="dir", required=True, metavar="PATH",
     help="a valid directory to be listed.", type=is_directory)
+required.add_argument(
+    "-o", "--optional", dest="optional", metavar="STR",
+    help="an optional string")
 parser.add_argument(
     "-b", "--fbreak", dest="fbreak", action="store_true",
     help="a activated raise a ValueError.")

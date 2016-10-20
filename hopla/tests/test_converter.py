@@ -64,6 +64,17 @@ class TestConverterHopla(unittest.TestCase):
                 expected_commands[0].insert(5, "--fbreak")
             self.assertEqual(sorted(generated_commands),
                              sorted(expected_commands))
+        for optional in (None, "some_string"):
+            hopla(self.script, d=["dir1"], l=[2, 3], o=optional,
+                  verbose=[0], hopla_iterative_kwargs=["d", "verbose"],
+                  hopla_optional=["fbreak", "verbose"])
+            generated_commands = mock_scheduler.call_args_list[-1][0][0]
+            expected_commands = [
+                [self.script, "-d", "dir1", "--verbose", "0", "-l", "2", "3"]]
+            if optional is not None:
+                expected_commands[0].extend(["-o", optional])
+            self.assertEqual(sorted(generated_commands),
+                             sorted(expected_commands))
 
         # Local execution with boolean iter
         for fbreak in (True, False):
@@ -76,6 +87,18 @@ class TestConverterHopla(unittest.TestCase):
             if fbreak:
                 expected_commands[0].insert(3, "--fbreak")
             self.assertEqual(generated_commands, expected_commands)
+        for optional in (None, "some_string"):
+            hopla(self.script, d=["dir1"], l=[2, 3], o=[optional],
+                  verbose=0, hopla_iterative_kwargs=["d", "o"],
+                  hopla_optional=["fbreak", "verbose"])
+            generated_commands = mock_scheduler.call_args_list[-1][0][0]
+            expected_commands = [
+                [self.script, "-d", "dir1", "-l", "2", "3", "--verbose", "0"]]
+            if optional is not None:
+                expected_commands[0].insert(3, "-o")
+                expected_commands[0].insert(4, optional)
+            self.assertEqual(sorted(generated_commands),
+                             sorted(expected_commands))
 
 
 if __name__ == "__main__":
