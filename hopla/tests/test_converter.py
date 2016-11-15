@@ -57,7 +57,9 @@ class TestConverterHopla(unittest.TestCase):
             hopla(self.script, d=["dir1"], l=[2, 3], fbreak=fbreak,
                   verbose=[0], hopla_iterative_kwargs=["d", "verbose"],
                   hopla_optional=["fbreak", "verbose"])
-            generated_commands = mock_scheduler.call_args_list[-1][0][0]
+            print(mock_scheduler.call_args_list[-1][1]["commands"])
+            generated_commands = mock_scheduler.call_args_list[-1][1][
+                "commands"]
             expected_commands = [
                 [self.script, "-d", "dir1", "--verbose", "0", "-l", "2", "3"]]
             if fbreak:
@@ -68,7 +70,8 @@ class TestConverterHopla(unittest.TestCase):
             hopla(self.script, d=["dir1"], l=[2, 3], o=optional,
                   verbose=[0], hopla_iterative_kwargs=["d", "verbose"],
                   hopla_optional=["fbreak", "verbose"])
-            generated_commands = mock_scheduler.call_args_list[-1][0][0]
+            generated_commands = mock_scheduler.call_args_list[-1][1][
+                "commands"]
             expected_commands = [
                 [self.script, "-d", "dir1", "--verbose", "0", "-l", "2", "3"]]
             if optional is not None:
@@ -81,7 +84,8 @@ class TestConverterHopla(unittest.TestCase):
             hopla(self.script, d=["dir1"], l=[2, 3], fbreak=[fbreak],
                   verbose=0, hopla_iterative_kwargs=["d", "fbreak"],
                   hopla_optional=["fbreak", "verbose"])
-            generated_commands = mock_scheduler.call_args_list[-1][0][0]
+            generated_commands = mock_scheduler.call_args_list[-1][1][
+                "commands"]
             expected_commands = [
                 [self.script, "-d", "dir1", "-l", "2", "3", "--verbose", "0"]]
             if fbreak:
@@ -91,7 +95,8 @@ class TestConverterHopla(unittest.TestCase):
             hopla(self.script, d=["dir1"], l=[2, 3], o=[optional],
                   verbose=0, hopla_iterative_kwargs=["d", "o"],
                   hopla_optional=["fbreak", "verbose"])
-            generated_commands = mock_scheduler.call_args_list[-1][0][0]
+            generated_commands = mock_scheduler.call_args_list[-1][1][
+                "commands"]
             expected_commands = [
                 [self.script, "-d", "dir1", "-l", "2", "3", "--verbose", "0"]]
             if optional is not None:

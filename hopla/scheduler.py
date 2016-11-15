@@ -29,9 +29,10 @@ multiprocessing.log_to_stderr(logging.CRITICAL)  # pragma: no cover
 logger = logging.getLogger("hopla")  # pragma: no cover
 
 
-def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
-              cluster_logdir=None, cluster_queue=None, cluster_memory=1,
-              cluster_walltime=24, cluster_python_cmd="python", verbose=1):
+def scheduler(commands, name="job", outputdir=None, cpus=1, delay_upto=0,
+              logfile=None, cluster=False, cluster_logdir=None,
+              cluster_queue=None, cluster_memory=1, cluster_walltime=24,
+              cluster_nb_threads=1, cluster_python_cmd="python", verbose=1):
     """ Execute some commands (python scripts) using a scheduler.
 
     If the script contains a '__hopla__' list of parameter names to keep
@@ -43,10 +44,15 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
     commands: list of list of str (mandatory)
         some commands to be executed: the first command element must be a
         path to a python script.
+    name: str (optional, default 'job')
+        the job name is constructed with this parameter as <name>_<iter>.
     outputdir: str (optional, default None)
         a folder where a summary of the executed jobs are written.
     cpus: int (optional, default 1)
         the number of cpus to be used.
+    delay_upto: int (optional, default 0)
+        the processes' execution will be delayed randomly by [0, <delay_upto>[
+        seconds.
     logfile: str (optional, default None)
         location where the log messages are redirected: INFO and DEBUG.
     cluster: bool (optional, default False)
@@ -60,6 +66,8 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
         the memory allocated to each job submitted on a cluster (in GB).
     cluster_walltime: int (optional, default 24)
         the walltime used for each job submitted on the cluster (in hours).
+    cluster_nb_threads: int (optional, default 1)
+        the number of cores allocated for each node.
     cluster_python_cmd: str (optional, default 'python')
         the path to the python binary.
     verbose: int (optional, default 1)
@@ -147,11 +155,11 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
             process = multiprocessing.Process(
                 target=qsub_worker, args=(tasks, returncodes, cluster_logdir,
                                           cluster_queue, cluster_memory,
-                                          cluster_walltime,
-                                          cluster_python_cmd))
+                                          cluster_walltime, cluster_nb_threads,
+                                          cluster_python_cmd, delay_upto))
         else:
             process = multiprocessing.Process(
-                target=worker, args=(tasks, returncodes))
+                target=worker, args=(tasks, returncodes, delay_upto))
         process.deamon = True
         process.start()
         workers.append(process)
@@ -167,7 +175,7 @@ def scheduler(commands, outputdir=None, cpus=1, logfile=None, cluster=False,
 
         # Add all the jobs to the 'tasks' queue
         for cnt, cmd in enumerate(commands):
-            job_name = "job_{0}".format(cnt)
+            job_name = "{0}_{1}".format(name, cnt)
             tasks.put((job_name, cmd))
 
         # Add poison pills to stop the remote workers

@@ -14,6 +14,7 @@ a Python script.
 """  # pragma: no cover
 
 # System import
+import os  # pragma: no cover
 from collections import OrderedDict  # pragma: no cover
 
 # Hopla import
@@ -21,11 +22,12 @@ from .scheduler import scheduler  # pragma: no cover
 
 
 def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
-          hopla_optional=None, hopla_logfile=None, hopla_verbose=1,
-          hopla_cluster=False, hopla_cluster_logdir=None,
+          hopla_delay_upto=0, hopla_optional=None, hopla_logfile=None,
+          hopla_verbose=1, hopla_cluster=False, hopla_cluster_logdir=None,
           hopla_cluster_queue=None, hopla_cluster_memory=1,
-          hopla_cluster_walltime=72, hopla_cluster_python_cmd="python",
-          hopla_iterative_kwargs=None, **kwargs):
+          hopla_cluster_walltime=72, hopla_cluster_nb_threads=1,
+          hopla_cluster_python_cmd="python", hopla_iterative_kwargs=None,
+          **kwargs):
     """ Execute a python script/file in parallel.
 
     Rules:
@@ -48,6 +50,9 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         a folder where synthetic results are written.
     hopla_cpus: int (optional, default 1)
         the number of cpus to be used.
+    hopla_delay_upto: int (optional, default 0)
+        the processes' execution will be delayed randomly by [0, <delay_upto>[
+        seconds.
     hopla_optional: list of str (optional, default None)
         the optional kwagrs names that will be prefixed with '--' in the
         command line.
@@ -68,6 +73,8 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         the memory allocated to each job submitted on a cluster (in GB).
     hopla_cluster_walltime: int (optional, default 72)
         the walltime used for each job submitted on the cluster (in hours).
+    hopla_cluster_nb_threads: int (optional, default 1)
+        the number of cores allocated for each node.
     hopla_cluster_python_cmd: str (optional, default 'python')
         the path to the python binary.
     hopla_iterative_kwargs: list of str (optional, default None)
@@ -159,7 +166,18 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
 
     # Execute the commands with a scheduler in order to control the execution
     # load
-    return scheduler(commands, hopla_outputdir, hopla_cpus, hopla_logfile,
-                     hopla_cluster, hopla_cluster_logdir, hopla_cluster_queue,
-                     hopla_cluster_memory, hopla_cluster_walltime,
-                     hopla_cluster_python_cmd, hopla_verbose)
+    script_name = python_script.split(os.sep)[-1].split(".")[0]
+    return scheduler(commands=commands,
+                     name=script_name,
+                     outputdir=hopla_outputdir,
+                     cpus=hopla_cpus,
+                     delay_upto=hopla_delay_upto,
+                     logfile=hopla_logfile,
+                     cluster=hopla_cluster,
+                     cluster_logdir=hopla_cluster_logdir,
+                     cluster_queue=hopla_cluster_queue,
+                     cluster_memory=hopla_cluster_memory,
+                     cluster_walltime=hopla_cluster_walltime,
+                     cluster_nb_threads=hopla_cluster_nb_threads,
+                     cluster_python_cmd=hopla_cluster_python_cmd,
+                     verbose=hopla_verbose)

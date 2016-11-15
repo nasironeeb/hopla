@@ -23,13 +23,14 @@ import sys  # pragma: no cover
 import glob  # pragma: no cover
 import time  # pragma: no cover
 import json  # pragma: no cover
+import random  # pragma: no cover
 
 # Hopla import
 from .signals import FLAG_ALL_DONE  # pragma: no cover
 from .signals import FLAG_WORKER_FINISHED_PROCESSING  # pragma: no cover
 
 
-def worker(tasks, returncodes):
+def worker(tasks, returncodes, delay_upto=0):
     """ The worker function for a script.
 
     If the script contains a '__hopla__' list of parameter names to keep
@@ -40,6 +41,9 @@ def worker(tasks, returncodes):
     ----------
     tasks, returncodes: multiprocessing.Queue
         the input (commands) and output (results) queues.
+    delay_upto: int (optional, default 0)
+        the process execution will be delayed randomly by [0, <delay_upto>[
+        seconds.
     """
     while True:
         signal = tasks.get()
@@ -62,8 +66,9 @@ def worker(tasks, returncodes):
             environ = copy.deepcopy(os.environ._data)
         returncode[job_name]["debug"]["environ"] = environ
 
-        # Execution
+        # Execution with a random delay expressed in seconds
         try:
+            time.sleep(random.random() * abs(delay_upto))
             sys.argv = command
             job_status = {}
             with open(command[0]) as ofile:
@@ -72,7 +77,7 @@ def worker(tasks, returncodes):
         # Error
         except:
             returncode[job_name]["info"]["exitcode"] = (
-                "1 - '{0}'".format(traceback.format_exc()))
+                "1 - '{0}'".format(traceback.format_exc().rstrip("\n")))
         # Follow '__hopla__' script parameters
         finally:
             if "__hopla__" in job_status:
@@ -85,7 +90,7 @@ def worker(tasks, returncodes):
 
 PBS_TEMPLATE = """
 #!/bin/bash
-#PBS -l mem={memory}gb,nodes=1:ppn=1,walltime={hwalltime}:00:00
+#PBS -l mem={memory}gb,nodes=1:ppn={threads},walltime={hwalltime}:00:00
 #PBS -N {name}
 #PBS -e {errfile}
 #PBS -o {logfile}
@@ -125,7 +130,8 @@ finally:
 
 
 def qsub_worker(tasks, returncodes, logdir, queue,
-                memory=1, walltime=24, python_cmd="python", sleep=2):
+                memory=1, walltime=24, nb_threads=1, python_cmd="python",
+                delay_upto=0, sleep=4):
     """ A cluster worker function for a script.
 
     Use the TORQUE resource manager provides control over batch jobs and
@@ -149,9 +155,14 @@ def qsub_worker(tasks, returncodes, logdir, queue,
         the memory allocated to each qsub (in GB).
     walltime: int (optional, default 24)
         the walltime used for each job submitted on the cluster (in hours).
+    nb_threads: int (optional, default 1)
+        the number of cores allocated for each node.
     python_cmd: str (optional, default 'python')
         the path to the python binary.
-    sleep: float (optional, default 2)
+    delay_upto: int (optional, default 0)
+        the process execution will be delayed randomly by [0, <delay_upto>[
+        seconds.
+    sleep: float (optional, default 4)
         time rate to check the termination of the submited jobs.
     """
     while True:
@@ -182,14 +193,21 @@ def qsub_worker(tasks, returncodes, logdir, queue,
         errfile = os.path.join(logdir, "error." + job_name)
         logfile = os.path.join(logdir, "output." + job_name)
         try:
+            # Random delay expressed in seconds
+            time.sleep(random.random() * abs(delay_upto))
+
             # Edit the job to be submitted
             with open(fname_py, "w") as open_file:
                 open_file.write(PY_TEMPLATE.format(cmd=command))
             with open(fname_pbs, "w") as open_file:
                 open_file.write(PBS_TEMPLATE.format(
-                    memory=memory, hwalltime=walltime, name=job_name,
+                    memory=memory,
+                    hwalltime=walltime,
+                    threads=nb_threads,
+                    name=job_name,
                     errfile=errfile + ".$PBS_JOBID",
-                    logfile=logfile + ".$PBS_JOBID", command=pbs_cmd))
+                    logfile=logfile + ".$PBS_JOBID",
+                    command=pbs_cmd))
 
             # Submit the job
             subprocess.check_call(["qsub", "-q", queue, fname_pbs])
