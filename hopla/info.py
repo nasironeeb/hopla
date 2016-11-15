@@ -12,7 +12,7 @@
 # Pysphinxdoc current version
 version_major = 1  # pragma: no cover
 version_minor = 0  # pragma: no cover
-version_micro = 2  # pragma: no cover
+version_micro = 3  # pragma: no cover
 
 # Expected by setup.py: string of form "X.Y.Z"
 __version__ = "{0}.{1}.{2}".format(
