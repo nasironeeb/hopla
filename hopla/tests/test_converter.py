@@ -57,7 +57,6 @@ class TestConverterHopla(unittest.TestCase):
             hopla(self.script, d=["dir1"], l=[2, 3], fbreak=fbreak,
                   verbose=[0], hopla_iterative_kwargs=["d", "verbose"],
                   hopla_optional=["fbreak", "verbose"])
-            print(mock_scheduler.call_args_list[-1][1]["commands"])
             generated_commands = mock_scheduler.call_args_list[-1][1][
                 "commands"]
             expected_commands = [
@@ -84,6 +83,7 @@ class TestConverterHopla(unittest.TestCase):
             hopla(self.script, d=["dir1"], l=[2, 3], fbreak=[fbreak],
                   verbose=0, hopla_iterative_kwargs=["d", "fbreak"],
                   hopla_optional=["fbreak", "verbose"])
+            # print(mock_scheduler.call_args_list[-1][1]["commands"])
             generated_commands = mock_scheduler.call_args_list[-1][1][
                 "commands"]
             expected_commands = [

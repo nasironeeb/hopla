@@ -29,7 +29,8 @@ multiprocessing.log_to_stderr(logging.CRITICAL)  # pragma: no cover
 logger = logging.getLogger("hopla")  # pragma: no cover
 
 
-def scheduler(commands, name="job", outputdir=None, cpus=1, delay_upto=0,
+def scheduler(commands, name="job", outputdir=None, cpus=1,
+              use_subprocess=False, delay_upto=0,
               logfile=None, cluster=False, cluster_logdir=None,
               cluster_queue=None, cluster_memory=1, cluster_walltime=24,
               cluster_nb_threads=1, cluster_python_cmd="python", verbose=1):
@@ -50,6 +51,9 @@ def scheduler(commands, name="job", outputdir=None, cpus=1, delay_upto=0,
         a folder where a summary of the executed jobs are written.
     cpus: int (optional, default 1)
         the number of cpus to be used.
+    use_subprocess: bool, default False
+        use a subprocess (for instance in case of memory leak). In this
+        particular case the __hopla__ setting is deactivated.
     delay_upto: int (optional, default 0)
         the processes' execution will be delayed randomly by [0, <delay_upto>[
         seconds.
@@ -69,7 +73,7 @@ def scheduler(commands, name="job", outputdir=None, cpus=1, delay_upto=0,
     cluster_nb_threads: int (optional, default 1)
         the number of cores allocated for each node.
     cluster_python_cmd: str (optional, default 'python')
-        the path to the python binary.
+        the path to the python binary. May also be used in subprocess mode.
     verbose: int (optional, default 1)
         0 - display no log in console,
         1 - display information log in console,
@@ -159,7 +163,8 @@ def scheduler(commands, name="job", outputdir=None, cpus=1, delay_upto=0,
                                           cluster_python_cmd, delay_upto))
         else:
             process = multiprocessing.Process(
-                target=worker, args=(tasks, returncodes, delay_upto))
+                target=worker, args=(tasks, returncodes, cluster_python_cmd,
+                                     delay_upto, use_subprocess))
         process.deamon = True
         process.start()
         workers.append(process)

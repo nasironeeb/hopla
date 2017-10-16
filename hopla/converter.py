@@ -22,12 +22,12 @@ from .scheduler import scheduler  # pragma: no cover
 
 
 def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
-          hopla_delay_upto=0, hopla_optional=None, hopla_logfile=None,
-          hopla_verbose=1, hopla_cluster=False, hopla_cluster_logdir=None,
-          hopla_cluster_queue=None, hopla_cluster_memory=1,
-          hopla_cluster_walltime=72, hopla_cluster_nb_threads=1,
-          hopla_cluster_python_cmd="python", hopla_iterative_kwargs=None,
-          **kwargs):
+          hopla_use_subprocess=False, hopla_delay_upto=0, hopla_optional=None,
+          hopla_logfile=None, hopla_verbose=1, hopla_cluster=False,
+          hopla_cluster_logdir=None, hopla_cluster_queue=None,
+          hopla_cluster_memory=1, hopla_cluster_walltime=72,
+          hopla_cluster_nb_threads=1, hopla_cluster_python_cmd="python",
+          hopla_iterative_kwargs=None, **kwargs):
     """ Execute a python script/file in parallel.
 
     Rules:
@@ -50,6 +50,9 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         a folder where synthetic results are written.
     hopla_cpus: int (optional, default 1)
         the number of cpus to be used.
+    hopla_use_subprocess: bool, default False
+        use a subprocess (for instance in case of memory leak). In this
+        particular case the __hopla__ setting is deactivated.
     hopla_delay_upto: int (optional, default 0)
         the processes' execution will be delayed randomly by [0, <delay_upto>[
         seconds.
@@ -110,10 +113,10 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                     "rule.".format(name, values))
             values_count.append(len(values))
             for index, val in enumerate(values):
-                if val is None:
-                    continue
                 if len(commands) <= index:
                     commands.append([])
+                if val is None:
+                    continue
                 # > in the command line, prefix kwargs with '-',
                 # optional kwargs with '--'
                 if name in hopla_optional:
@@ -171,6 +174,7 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                      name=script_name,
                      outputdir=hopla_outputdir,
                      cpus=hopla_cpus,
+                     use_subprocess=hopla_use_subprocess,
                      delay_upto=hopla_delay_upto,
                      logfile=hopla_logfile,
                      cluster=hopla_cluster,

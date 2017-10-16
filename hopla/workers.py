@@ -30,7 +30,8 @@ from .signals import FLAG_ALL_DONE  # pragma: no cover
 from .signals import FLAG_WORKER_FINISHED_PROCESSING  # pragma: no cover
 
 
-def worker(tasks, returncodes, delay_upto=0):
+def worker(tasks, returncodes, python_cmd="python", delay_upto=0,
+           use_subprocess=False):
     """ The worker function for a script.
 
     If the script contains a '__hopla__' list of parameter names to keep
@@ -41,9 +42,14 @@ def worker(tasks, returncodes, delay_upto=0):
     ----------
     tasks, returncodes: multiprocessing.Queue
         the input (commands) and output (results) queues.
+    python_cmd: str (optional, default 'python')
+        the path to the python binary. Only usefull in the subprocess mode.
     delay_upto: int (optional, default 0)
         the process execution will be delayed randomly by [0, <delay_upto>[
         seconds.
+    use_subprocess: bool, default False
+        use a subprocess (for instance in case of memory leak). In this
+        particular case the __hopla__ setting is deactivated.
     """
     while True:
         signal = tasks.get()
@@ -72,7 +78,10 @@ def worker(tasks, returncodes, delay_upto=0):
             sys.argv = command
             job_status = {}
             with open(command[0]) as ofile:
-                exec(ofile.read(), job_status)
+                if use_subprocess:
+                    subprocess.check_call([python_cmd] + command)
+                else:
+                    exec(ofile.read(), job_status)
             returncode[job_name]["info"]["exitcode"] = "0"
         # Error
         except:
