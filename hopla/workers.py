@@ -167,7 +167,8 @@ def qsub_worker(tasks, returncodes, logdir, queue,
     nb_threads: int (optional, default 1)
         the number of cores allocated for each node.
     python_cmd: str (optional, default 'python')
-        the path to the python binary.
+        the path to the python binary. If None consider the command directly in
+        the PBS batch.
     delay_upto: int (optional, default 0)
         the process execution will be delayed randomly by [0, <delay_upto>[
         seconds.
@@ -198,7 +199,6 @@ def qsub_worker(tasks, returncodes, logdir, queue,
         # Torque-PBS execution
         fname_pbs = os.path.join(logdir, job_name + ".pbs")
         fname_py = os.path.join(logdir, job_name + ".py")
-        pbs_cmd = " ".join([python_cmd, fname_py])
         errfile = os.path.join(logdir, "error." + job_name)
         logfile = os.path.join(logdir, "output." + job_name)
         try:
@@ -206,24 +206,37 @@ def qsub_worker(tasks, returncodes, logdir, queue,
             time.sleep(random.random() * abs(delay_upto))
 
             # Edit the job to be submitted
-            with open(fname_py, "w") as open_file:
-                open_file.write(PY_TEMPLATE.format(cmd=command))
-            with open(fname_pbs, "w") as open_file:
-                open_file.write(PBS_TEMPLATE.format(
-                    memory=memory,
-                    hwalltime=walltime,
-                    threads=nb_threads,
-                    name=job_name,
-                    errfile=errfile + ".$PBS_JOBID",
-                    logfile=logfile + ".$PBS_JOBID",
-                    command=pbs_cmd))
+            if python_cmd is not None:
+                with open(fname_py, "w") as open_file:
+                    open_file.write(PY_TEMPLATE.format(cmd=command))
+                with open(fname_pbs, "w") as open_file:
+                    pbs_cmd = " ".join([python_cmd, fname_py])
+                    open_file.write(PBS_TEMPLATE.format(
+                        memory=memory,
+                        hwalltime=walltime,
+                        threads=nb_threads,
+                        name=job_name,
+                        errfile=errfile + ".$PBS_JOBID",
+                        logfile=logfile + ".$PBS_JOBID",
+                        command=pbs_cmd))
+            else:
+                with open(fname_pbs, "w") as open_file:
+                    open_file.write(PBS_TEMPLATE.format(
+                        memory=memory,
+                        hwalltime=walltime,
+                        threads=nb_threads,
+                        name=job_name,
+                        errfile=errfile + ".$PBS_JOBID",
+                        logfile=logfile + ".$PBS_JOBID",
+                        command=" ".join(command)))
 
             # Submit the job
             subprocess.check_call(["qsub", "-q", queue, fname_pbs])
 
             # Lock everything until the submitted command has not terminated
             while True:
-                terminated = len(glob.glob(errfile + ".*")) > 0
+                terminated = (len(glob.glob(errfile + ".*")) > 0 or
+                              len(glob.glob(logfile + ".*")) > 0)
                 if terminated:
                     break
                 time.sleep(sleep)

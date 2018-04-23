@@ -41,6 +41,9 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         * If the script contains a '__hopla__' list of parameter names to keep
           trace on, all the specified parameters values are stored in the
           execution status.
+        * On a cluster if the 'hopla_cluster_python_cmd' parameter is set to
+          None, execute directly the script as a command. Usefull for
+          singularity call.
 
     Parameters
     ----------
@@ -79,7 +82,8 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
     hopla_cluster_nb_threads: int (optional, default 1)
         the number of cores allocated for each node.
     hopla_cluster_python_cmd: str (optional, default 'python')
-        the path to the python binary.
+        the path to the python binary. If None consider the command directly in
+        the PBS batch.
     hopla_iterative_kwargs: list of str (optional, default None)
         the iterative script parameters.
     kwargs: dict (optional)
