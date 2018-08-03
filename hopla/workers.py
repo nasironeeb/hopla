@@ -14,6 +14,7 @@ execution status.
 """  # pragma: no cover
 
 # System import
+from __future__ import print_function  # pragma: no cover
 import os  # pragma: no cover
 import copy  # pragma: no cover
 import subprocess  # pragma: no cover
@@ -235,7 +236,9 @@ def qsub_worker(tasks, returncodes, logdir, queue,
             process = subprocess.Popen(["qsub", "-q", queue, fname_pbs],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-            job_id, stderr = process.communicate()
+            stdout, stderr = process.communicate()
+            job_id = stdout.rstrip("\n")
+            print(job_id)
             exitcode = process.returncode
             if exitcode != 0:
                 raise Exception(stderr)
@@ -244,27 +247,30 @@ def qsub_worker(tasks, returncodes, logdir, queue,
             while True:
                 terminated = (len(glob.glob(errfile + ".*")) > 0 or
                               len(glob.glob(logfile + ".*")) > 0)
+                with_log = terminated
                 process = subprocess.Popen("qstat | grep {0}".format(job_id),
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE,
                                            shell=True)
                 stdout, stderr = process.communicate()
                 exitcode = process.returncode
-                if exitcode != 0:
-                    raise Exception(stderr)
-                terminated = terminated or (stdout != "")
+                terminated = terminated or (exitcode == 1)
                 if terminated:
                     break
                 time.sleep(sleep)
 
             # Check that no error was produced during the submission
-            with open(glob.glob(errfile + ".*")[0]) as open_file:
-                stderr = open_file.readlines()
-            if len(stderr) > 0:
-                raise Exception("\n".join(stderr))
+            if with_log:
+                with open(glob.glob(errfile + ".*")[0]) as open_file:
+                    stderr = open_file.readlines()
+                if len(stderr) > 0:
+                    raise Exception("\n".join(stderr))
 
             # Update the return code
-            returncode[job_name]["info"]["exitcode"] = "0"
+            if with_log:
+                returncode[job_name]["info"]["exitcode"] = "0"
+            else:
+                returncode[job_name]["info"]["exitcode"] = "-1"
         # Error
         except:
             if os.path.isfile(errfile):
