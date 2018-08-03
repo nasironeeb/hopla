@@ -231,12 +231,28 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                         command=" ".join(command)))
 
             # Submit the job
-            subprocess.check_call(["qsub", "-q", queue, fname_pbs])
+            # subprocess.check_call(["qsub", "-q", queue, fname_pbs])
+            process = subprocess.Popen(["qsub", "-q", queue, fname_pbs],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            job_id, stderr = process.communicate()
+            exitcode = process.returncode
+            if exitcode != 0:
+                raise Exception(stderr)
 
             # Lock everything until the submitted command has not terminated
             while True:
                 terminated = (len(glob.glob(errfile + ".*")) > 0 or
                               len(glob.glob(logfile + ".*")) > 0)
+                process = subprocess.Popen("qstat | grep {0}".format(job_id),
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           shell=True)
+                stdout, stderr = process.communicate()
+                exitcode = process.returncode
+                if exitcode != 0:
+                    raise Exception(stderr)
+                terminated = terminated or (stdout != "")
                 if terminated:
                     break
                 time.sleep(sleep)

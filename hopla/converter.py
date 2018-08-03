@@ -23,11 +23,12 @@ from .scheduler import scheduler  # pragma: no cover
 
 def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
           hopla_use_subprocess=False, hopla_delay_upto=0, hopla_optional=None,
-          hopla_logfile=None, hopla_verbose=1, hopla_cluster=False,
-          hopla_cluster_logdir=None, hopla_cluster_queue=None,
-          hopla_cluster_memory=1, hopla_cluster_walltime=72,
-          hopla_cluster_nb_threads=1, hopla_cluster_python_cmd="python",
-          hopla_iterative_kwargs=None, **kwargs):
+          hopla_append_kwargs=None, hopla_logfile=None, hopla_verbose=1,
+          hopla_cluster=False, hopla_cluster_logdir=None,
+          hopla_cluster_queue=None, hopla_cluster_memory=1,
+          hopla_cluster_walltime=72, hopla_cluster_nb_threads=1,
+          hopla_cluster_python_cmd="python", hopla_iterative_kwargs=None,
+          **kwargs):
     """ Execute a python script/file in parallel.
 
     Rules:
@@ -60,8 +61,11 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         the processes' execution will be delayed randomly by [0, <delay_upto>[
         seconds.
     hopla_optional: list of str (optional, default None)
-        the optional kwagrs names that will be prefixed with '--' in the
+        the optional kwargs names that will be prefixed with '--' in the
         command line.
+    hopla_append_kwargs: list of str (optional, default None)
+        this is useful to allow the kwargs names to be specified multiple
+        times.
     hopla_logfile: str (optional, default None)
         location where the log messages are redirected: INFO and DEBUG.
     hopla_verbose: int (optional, default 1)
@@ -103,6 +107,7 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
 
     # Create the commands to be executed by the scheduler
     iterative_kwargs = hopla_iterative_kwargs or []
+    append_kwargs = hopla_append_kwargs or []
     commands = []
     values_count = []
     # > sort kwargs
@@ -128,7 +133,16 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                 else:
                     option = ["-" + name]
                 # > set the option value
-                if isinstance(val, list):
+                if name in append_kwargs:
+                    _option_key = option[0]
+                    option = []
+                    for elem in val:
+                        option.append(_option_key)
+                        if isinstance(elem, list):
+                            option.extend(elem)
+                        else:
+                            option.append(elem)
+                elif isinstance(val, list):
                     option.extend([str(item) for item in val])
                 elif not isinstance(val, bool):
                     option.append(str(val))
@@ -159,7 +173,16 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                 else:
                     option = ["-" + name]
                 # > set the option value
-                if isinstance(value, list):
+                if name in append_kwargs:
+                    _option_key = option[0]
+                    option = []
+                    for elem in value:
+                        option.append(_option_key)
+                        if isinstance(elem, list):
+                            option.extend(elem)
+                        else:
+                            option.append(elem)
+                elif isinstance(value, list):
                     option.extend([str(item) for item in value])
                 elif not isinstance(value, bool):
                     option.append(str(value))

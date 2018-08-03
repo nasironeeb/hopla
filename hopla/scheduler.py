@@ -110,15 +110,18 @@ def scheduler(commands, name="job", outputdir=None, cpus=1,
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
     else:
+        logger.setLevel(logging.INFO)
         logger.addHandler(logging.NullHandler())
 
     # Create a file handler if requested
     if logfile is not None:
         file_handler = logging.FileHandler(logfile, mode="a")
-        file_handler.setLevel(logging.DEBUG)
+        if verbose > 1:
+            file_handler.setLevel(logging.DEBUG)
+        else:
+            file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-        logger.setLevel(logging.DEBUG)
         logger.info("Processing information will be logged in file "
                     "'{0}'.".format(logfile))
 
