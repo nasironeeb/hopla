@@ -104,6 +104,7 @@ PBS_TEMPLATE = """
 #PBS -N {name}
 #PBS -e {errfile}
 #PBS -o {logfile}
+echo $PBS_JOBID
 {command}
 """  # pragma: no cover
 
@@ -217,8 +218,8 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                         hwalltime=walltime,
                         threads=nb_threads,
                         name=job_name,
-                        errfile=errfile + ".$PBS_JOBID",
-                        logfile=logfile + ".$PBS_JOBID",
+                        errfile=errfile,
+                        logfile=logfile,
                         command=pbs_cmd))
             else:
                 with open(fname_pbs, "w") as open_file:
@@ -227,8 +228,8 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                         hwalltime=walltime,
                         threads=nb_threads,
                         name=job_name,
-                        errfile=errfile + ".$PBS_JOBID",
-                        logfile=logfile + ".$PBS_JOBID",
+                        errfile=errfile,
+                        logfile=logfile,
                         command=" ".join(command)))
 
             # Submit the job
