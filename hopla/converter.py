@@ -27,7 +27,7 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
           hopla_cluster=False, hopla_cluster_logdir=None,
           hopla_cluster_queue=None, hopla_cluster_memory=1,
           hopla_cluster_walltime=72, hopla_cluster_nb_threads=1,
-          hopla_cluster_python_cmd="python", hopla_iterative_kwargs=None,
+          hopla_python_cmd="python", hopla_iterative_kwargs=None,
           **kwargs):
     """ Execute a python script/file in parallel.
 
@@ -42,7 +42,7 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         * If the script contains a '__hopla__' list of parameter names to keep
           trace on, all the specified parameters values are stored in the
           execution status.
-        * On a cluster if the 'hopla_cluster_python_cmd' parameter is set to
+        * On a cluster if the 'hopla_python_cmd' parameter is set to
           None, execute directly the script as a command. Usefull for
           singularity call.
 
@@ -85,9 +85,8 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         the walltime used for each job submitted on the cluster (in hours).
     hopla_cluster_nb_threads: int (optional, default 1)
         the number of cores allocated for each node.
-    hopla_cluster_python_cmd: str (optional, default 'python')
-        the path to the python binary. If None consider the command directly in
-        the PBS batch.
+    hopla_python_cmd: str (optional, default 'python')
+        the path to the python binary. If None consider the command directly.
     hopla_iterative_kwargs: list of str (optional, default None)
         the iterative script parameters.
     kwargs: dict (optional)
@@ -210,5 +209,5 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                      cluster_memory=hopla_cluster_memory,
                      cluster_walltime=hopla_cluster_walltime,
                      cluster_nb_threads=hopla_cluster_nb_threads,
-                     cluster_python_cmd=hopla_cluster_python_cmd,
+                     python_cmd=hopla_python_cmd,
                      verbose=hopla_verbose)

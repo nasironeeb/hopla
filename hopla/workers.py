@@ -78,10 +78,13 @@ def worker(tasks, returncodes, python_cmd="python", delay_upto=0,
             time.sleep(random.random() * abs(delay_upto))
             sys.argv = command
             job_status = {}
-            with open(command[0]) as ofile:
-                if use_subprocess:
+            if use_subprocess:
+                if python_cmd is not None:
                     subprocess.check_call([python_cmd] + command)
                 else:
+                    subprocess.check_call(command)
+            else:
+                with open(command[0]) as ofile:
                     exec(ofile.read(), job_status)
             returncode[job_name]["info"]["exitcode"] = "0"
         # Error

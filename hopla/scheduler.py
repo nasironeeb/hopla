@@ -33,7 +33,7 @@ def scheduler(commands, name="job", outputdir=None, cpus=1,
               use_subprocess=False, delay_upto=0,
               logfile=None, cluster=False, cluster_logdir=None,
               cluster_queue=None, cluster_memory=1, cluster_walltime=24,
-              cluster_nb_threads=1, cluster_python_cmd="python", verbose=1):
+              cluster_nb_threads=1, python_cmd="python", verbose=1):
     """ Execute some commands (python scripts) using a scheduler.
 
     If the script contains a '__hopla__' list of parameter names to keep
@@ -72,7 +72,7 @@ def scheduler(commands, name="job", outputdir=None, cpus=1,
         the walltime used for each job submitted on the cluster (in hours).
     cluster_nb_threads: int (optional, default 1)
         the number of cores allocated for each node.
-    cluster_python_cmd: str (optional, default 'python')
+    python_cmd: str (optional, default 'python')
         the path to the python binary. May also be used in subprocess mode.
     verbose: int (optional, default 1)
         0 - display no log in console,
@@ -163,10 +163,10 @@ def scheduler(commands, name="job", outputdir=None, cpus=1,
                 target=qsub_worker, args=(tasks, returncodes, cluster_logdir,
                                           cluster_queue, cluster_memory,
                                           cluster_walltime, cluster_nb_threads,
-                                          cluster_python_cmd, delay_upto))
+                                          python_cmd, delay_upto))
         else:
             process = multiprocessing.Process(
-                target=worker, args=(tasks, returncodes, cluster_python_cmd,
+                target=worker, args=(tasks, returncodes, python_cmd,
                                      delay_upto, use_subprocess))
         process.deamon = True
         process.start()
