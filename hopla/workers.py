@@ -249,8 +249,7 @@ def qsub_worker(tasks, returncodes, logdir, queue,
 
             # Lock everything until the submitted command has not terminated
             while True:
-                terminated = (len(glob.glob(errfile + ".*")) > 0 or
-                              len(glob.glob(logfile + ".*")) > 0)
+                terminated = os.path.isfile(errfile) or os.path.isfile(logfile)
                 with_log = terminated
                 process = subprocess.Popen("qstat | grep {0}".format(job_id),
                                            stdout=subprocess.PIPE,
@@ -258,14 +257,14 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                                            shell=True)
                 stdout, stderr = process.communicate()
                 exitcode = process.returncode
-                terminated = terminated or (exitcode == 1)
+                # terminated = terminated or (exitcode == 1)
                 if terminated:
                     break
                 time.sleep(sleep)
 
             # Check that no error was produced during the submission
             if with_log:
-                with open(glob.glob(errfile + ".*")[0]) as open_file:
+                with open(errfile) as open_file:
                     stderr = open_file.readlines()
                 if len(stderr) > 0:
                     raise Exception("\n".join(stderr))
@@ -287,9 +286,8 @@ def qsub_worker(tasks, returncodes, logdir, queue,
         # Follow '__hopla__' script parameters in pbs '<hopla>...</hopla>'
         # output
         finally:
-            pbs_logfiles = glob.glob(logfile + ".*")
-            if len(pbs_logfiles) == 1:
-                with open(pbs_logfiles[0]) as open_file:
+            if os.path.isfile(logfile):
+                with open(logfile) as open_file:
                     stdout = open_file.read()
                 hopla_start = stdout.rfind("<hopla>")
                 hopla_end = stdout.rfind("</hopla>")
