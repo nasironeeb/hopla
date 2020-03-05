@@ -82,6 +82,7 @@ def worker(tasks, returncodes, python_cmd="python", delay_upto=0,
                 if python_cmd is not None:
                     subprocess.check_call([python_cmd] + command)
                 else:
+                    command = command[0].split(" ") + command[1:]
                     subprocess.check_call(command)
             else:
                 with open(command[0]) as ofile:
