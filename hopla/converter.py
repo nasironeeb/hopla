@@ -28,6 +28,7 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
           hopla_cluster_queue=None, hopla_cluster_memory=1,
           hopla_cluster_walltime=72, hopla_cluster_nb_threads=1,
           hopla_python_cmd="python", hopla_iterative_kwargs=None,
+          hopla_name_replace=False,
           **kwargs):
     """ Execute a python script/file in parallel.
 
@@ -89,6 +90,8 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         the path to the python binary. If None consider the command directly.
     hopla_iterative_kwargs: list of str (optional, default None)
         the iterative script parameters.
+    hopla_name_replace: bool (optional, default False)
+        replace "_" by "-" in parameter names.
     kwargs: dict (optional)
         the script parameters: iterative kwargs must contain a list of elements
         and must all have the same length, non-iterative kwargs will be
@@ -113,6 +116,8 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
     kwargs = OrderedDict(sorted(list(kwargs.items())))
     # > deal kwargs with iterative kwargs
     for name, values in kwargs.items():
+        if hopla_name_replace:
+            name = name.replace("_", "-")
         if name in iterative_kwargs:
             if not isinstance(values, list):
                 raise ValueError(
@@ -161,6 +166,8 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
     for cmd in commands:
         cmd.insert(0, python_script)
         for name, value in kwargs.items():
+            if hopla_name_replace:
+                name = name.replace("_", "-")
             if name not in iterative_kwargs:
                 # > skip None value
                 if value is None:
@@ -195,7 +202,10 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
 
     # Execute the commands with a scheduler in order to control the execution
     # load
-    script_name = python_script.split(os.sep)[-1].split(".")[0]
+    if hopla_python_cmd is not None:
+        script_name = python_script.split(os.sep)[-1].split(".")[0]
+    else:
+        script_name = "batch"
     return scheduler(commands=commands,
                      name=script_name,
                      outputdir=hopla_outputdir,
