@@ -109,6 +109,7 @@ PBS_TEMPLATE = """
 #PBS -e {errfile}
 #PBS -o {logfile}
 echo $PBS_JOBID
+echo $HOSTNAME
 {command}
 """  # pragma: no cover
 
@@ -146,7 +147,7 @@ finally:
 
 def qsub_worker(tasks, returncodes, logdir, queue,
                 memory=1, walltime=24, nb_threads=1, python_cmd="python",
-                delay_upto=0, sleep=4):
+                delay_upto=0, sleep=40):
     """ A cluster worker function for a script.
 
     Use the TORQUE resource manager provides control over batch jobs and
@@ -178,7 +179,7 @@ def qsub_worker(tasks, returncodes, logdir, queue,
     delay_upto: int (optional, default 0)
         the process execution will be delayed randomly by [0, <delay_upto>[
         seconds.
-    sleep: float (optional, default 4)
+    sleep: float (optional, default 40)
         time rate to check the termination of the submited jobs.
     """
     while True:
@@ -242,6 +243,7 @@ def qsub_worker(tasks, returncodes, logdir, queue,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
+            stdout = stdout.decode("utf8")
             job_id = stdout.rstrip("\n")
             print(job_id)
             exitcode = process.returncode
