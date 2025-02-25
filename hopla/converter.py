@@ -25,10 +25,10 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
           hopla_use_subprocess=False, hopla_delay_upto=0, hopla_optional=None,
           hopla_append_kwargs=None, hopla_logfile=None, hopla_verbose=1,
           hopla_cluster=False, hopla_cluster_logdir=None,
-          hopla_cluster_queue=None, hopla_cluster_memory=1,
+          hopla_cluster_queue=None, hopla_cluster_memory=2,
           hopla_cluster_walltime=72, hopla_cluster_nb_threads=1,
-          hopla_python_cmd="python", hopla_iterative_kwargs=None,
-          hopla_name_replace=False,
+          hopla_cluster_nb_gpus=None, hopla_python_cmd="python",
+          hopla_iterative_kwargs=None, hopla_name_replace=False,
           **kwargs):
     """ Execute a python script/file in parallel.
 
@@ -86,6 +86,8 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
         the walltime used for each job submitted on the cluster (in hours).
     hopla_cluster_nb_threads: int (optional, default 1)
         the number of cores allocated for each node.
+    hopla_cluster_nb_gpus: int (optional, default None)
+        the number of GPUs allocated.
     hopla_python_cmd: str (optional, default 'python')
         the path to the python binary. If None consider the command directly.
     hopla_iterative_kwargs: list of str (optional, default None)
@@ -219,5 +221,6 @@ def hopla(python_script, hopla_outputdir=None, hopla_cpus=1,
                      cluster_memory=hopla_cluster_memory,
                      cluster_walltime=hopla_cluster_walltime,
                      cluster_nb_threads=hopla_cluster_nb_threads,
+                     cluster_nb_gpus=hopla_cluster_nb_gpus,
                      python_cmd=hopla_python_cmd,
                      verbose=hopla_verbose)

@@ -9,6 +9,7 @@
 
 # System import
 import os
+import shutil
 from pprint import pprint
 
 # Hopla import
@@ -20,6 +21,9 @@ from hopla.converter import hopla
 apath = os.path.join(os.path.abspath(os.path.dirname(root.__file__)), "demo")
 script = os.path.join(apath, "my_ls_script.py")
 cluster_logdir = os.path.join(apath, "pbs_logs")
+shutil.rmtree(cluster_logdir)
+if not os.path.isdir(cluster_logdir):
+    os.mkdir(cluster_logdir)
 
 # Local execution
 print("-------", "local execution")
@@ -73,6 +77,6 @@ status, exitcodes = hopla(
     hopla_outputdir=apath, hopla_logfile=os.path.join(apath, "log"),
     hopla_optional=["dir", "verbose", "mylist"], hopla_cluster=True,
     hopla_cluster_logdir=cluster_logdir,
-    hopla_cluster_queue="Cati_LowPrio",
-    hopla_cluster_python_cmd="/usr/bin/python2.7")
+    hopla_cluster_queue="Nspin_long",
+    hopla_python_cmd="/usr/bin/python3")
 pprint(exitcodes)

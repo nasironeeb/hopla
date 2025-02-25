@@ -1,5 +1,5 @@
 
-|Travis|_ |Coveralls|_ |Python27|_ |Python34|_ |PyPi|_ 
+|PythonVersion|_ |Travis|_ |Coveralls|_ |PyPi|_ |PoweredBy|_
 
 .. |Travis| image:: https://travis-ci.org/AGrigis/hopla.svg?branch=master
 .. _Travis: https://travis-ci.org/AGrigis/hopla
@@ -7,14 +7,15 @@
 .. |Coveralls| image:: https://coveralls.io/repos/AGrigis/hopla/badge.svg?branch=master&service=github
 .. _Coveralls: https://coveralls.io/github/AGrigis/hopla
 
-.. |Python27| image:: https://img.shields.io/badge/python-2.7-blue.svg
-.. _Python27: https://badge.fury.io/py/hopla
-
-.. |Python34| image:: https://img.shields.io/badge/python-3.4-blue.svg
-.. _Python34: https://badge.fury.io/py/hopla
+.. |PythonVersion| image:: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9-blue
+.. _PythonVersion: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9-blue
 
 .. |PyPi| image:: https://badge.fury.io/py/hopla.svg
 .. _PyPi: https://badge.fury.io/py/hopla
+
+.. |PoweredBy| image:: https://img.shields.io/badge/Powered%20by-CEA%2FNeuroSpin-blue.svg
+.. _PoweredBy: https://joliot.cea.fr/drf/joliot/Pages/Entites_de_recherche/NeuroSpin.aspx
+
 
 
 Easy to use pure-Python scheduler. Visit also the

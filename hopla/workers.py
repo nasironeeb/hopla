@@ -102,9 +102,17 @@ def worker(tasks, returncodes, python_cmd="python", delay_upto=0,
         returncodes.put(returncode)
 
 
+RESOURCES = (
+    "mem={memory}gb,nodes=1:ppn={threads},walltime={hwalltime}:00:00")
+
+
+GPU_RESOURCES = (
+    "mem={memory}gb,ncpus={threads},ngpus={gpus},walltime={hwalltime}:00:00")
+
+
 PBS_TEMPLATE = """
 #!/bin/bash
-#PBS -l mem={memory}gb,nodes=1:ppn={threads},walltime={hwalltime}:00:00
+#PBS -l {resources}
 #PBS -N {name}
 #PBS -e {errfile}
 #PBS -o {logfile}
@@ -146,8 +154,8 @@ finally:
 
 
 def qsub_worker(tasks, returncodes, logdir, queue,
-                memory=1, walltime=24, nb_threads=1, python_cmd="python",
-                delay_upto=0, sleep=40):
+                memory=1, walltime=24, nb_threads=1, nb_gpus=None,
+                python_cmd="python", delay_upto=0, sleep=40):
     """ A cluster worker function for a script.
 
     Use the TORQUE resource manager provides control over batch jobs and
@@ -173,6 +181,8 @@ def qsub_worker(tasks, returncodes, logdir, queue,
         the walltime used for each job submitted on the cluster (in hours).
     nb_threads: int (optional, default 1)
         the number of cores allocated for each node.
+    nb_gpus: int (optional, default None)
+        the number of GPUs allocated.
     python_cmd: str (optional, default 'python')
         the path to the python binary. If None consider the command directly in
         the PBS batch.
@@ -213,15 +223,25 @@ def qsub_worker(tasks, returncodes, logdir, queue,
             time.sleep(random.random() * abs(delay_upto))
 
             # Edit the job to be submitted
+            if nb_gpus is not None:
+                resources = GPU_RESOURCES.format(
+                    memory=memory,
+                    hwalltime=walltime,
+                    threads=nb_threads,
+                    gpus=nb_gpus)
+            else:
+                resources = RESOURCES.format(
+                    memory=memory,
+                    hwalltime=walltime,
+                    threads=nb_threads,
+                    )
             if python_cmd is not None:
                 with open(fname_py, "w") as open_file:
                     open_file.write(PY_TEMPLATE.format(cmd=command))
                 with open(fname_pbs, "w") as open_file:
                     pbs_cmd = " ".join([python_cmd, fname_py])
                     open_file.write(PBS_TEMPLATE.format(
-                        memory=memory,
-                        hwalltime=walltime,
-                        threads=nb_threads,
+                        resources=resources,
                         name=job_name,
                         errfile=errfile,
                         logfile=logfile,
@@ -229,9 +249,7 @@ def qsub_worker(tasks, returncodes, logdir, queue,
             else:
                 with open(fname_pbs, "w") as open_file:
                     open_file.write(PBS_TEMPLATE.format(
-                        memory=memory,
-                        hwalltime=walltime,
-                        threads=nb_threads,
+                        resources=resources,
                         name=job_name,
                         errfile=errfile,
                         logfile=logfile,
