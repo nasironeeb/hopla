@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Parameters
+#PBS -q {queue}
+#PBS -l mem={memory}gb,ncpus={ncpus},ngpus={ngpus},walltime={walltime}:00:00
+#PBS -N {name}
+#PBS -e {stderr}
+#PBS -o {stdout}
+
+# Environment
+echo $PBS_JOBID
+echo $HOSTNAME
+
+# Command
+{command}
+echo "DONE"

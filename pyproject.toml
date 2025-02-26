@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hopla"
+readme = "README.rst"
+requires-python = ">=3.8"
+version = "2.0.0"
+authors = [
+    {name = "hopla developers", email = "antoine.grigis@cea.fr"},
+]
+license = {text = "CeCILL-B"}
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "tqdm"
+]
+
+[project.urls]
+Source = "https://github.com/AGrigis/hopla"
+Tracker = "https://github.com/AGrigis/hopla/issues"
+
+[tool.setuptools]
+platforms = ["Linux", "OSX"]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+exclude = ["doc"]
+namespaces = false
+
+[tool.nosetests]
+verbosity = "2"
+nologcapture = "0"
+cover-package = "hopla"
+with-coverage = "1"
+
+[tool.build_sphinx]
+source-dir = "doc"
+build-dir = "doc/build"
+all_files = "1"
