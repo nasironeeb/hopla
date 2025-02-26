@@ -25,7 +25,7 @@ class PbsInfoWatcher:
 
     Parameters
     ----------
-    delay_s: int
+    delay_s: int, default 60
         maximum delay before each non-forced call to the cluster.
     """
     def __init__(self, delay_s=60):
@@ -63,7 +63,7 @@ class PbsInfoWatcher:
         return self._info_dict.get(job_id, {})
 
     def update(self):
-        """ Updates the info of all registered jobs with a call to qstat
+        """ Updates the info of all registered jobs with a call to qstat.
         """
         if len(self._registered) == 0:
             return
@@ -108,7 +108,7 @@ class PbsInfoWatcher:
 
     def read_info(self, string):
         """ Reads the output of qstat and returns a dictionary containing
-        main information.
+        main jobs information.
         """
         if not isinstance(string, str):
             string = string.decode()
@@ -124,8 +124,18 @@ class PbsInfoWatcher:
 
 
 class DelayedPbsJob:
-    """ Represents a Job that have been queue for submission by an executor,
+    """ Represents a job that have been queue for submission by an executor,
     but hasn't yet been scheduled.
+
+    Parameters
+    ----------
+    delayed_submission: DelayedSubmission
+        a delayed submission alowwing the generate the command line to
+        execute.
+    executor: Executor
+        base job executor.
+    job_id: str
+        the job identifier.
     """
     def __init__(self, delayed_submission, executor, job_id):
         self.delayed_submission = delayed_submission

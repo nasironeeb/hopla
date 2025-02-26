@@ -15,6 +15,13 @@ import shutil
 
 class JobPaths:
     """ Creates paths related to a job and its submission.
+
+    Parameters
+    ----------
+    folder: Path
+        the current execution folder.
+    job_id: str
+        the job identifier.
     """
     def __init__(self, folder, job_id):
         self.submission_folder = folder / "submissions"
@@ -29,12 +36,18 @@ class JobPaths:
 
     @property
     def submission_file(self):
+        """ Generate the submission file location.
+        """
         return self.submission_folder / f"{self.job_id}_submission.sh"
 
     @property
     def stderr(self):
+        """ Generate the stderr file location.
+        """
         return self.log_folder / f"{self.job_id}_log.err"
 
     @property
     def stdout(self):
+        """ Generate the stdout file location.
+        """
         return self.log_folder / f"{self.job_id}_log.out"

@@ -84,7 +84,7 @@ class Executor(abc.ABC):
         self.watcher.update()
 
     def submit(self, script, *args, **kwargs):
-        """ Create a job.
+        """ Create a delayed job.
 
         Parameters
         ----------
@@ -95,7 +95,7 @@ class Executor(abc.ABC):
 
         Returns
         -------
-        job: DelayedPbsJob
+        job: DelayedJob
             a job instance.
         """
         self._counter += 1
@@ -126,18 +126,26 @@ class Executor(abc.ABC):
 
     @property
     def n_jobs(self):
+        """ Get the number of stacked jobs.
+        """
         return len(self._delayed_jobs)
 
     @property
     def n_done_jobs(self):
+        """ Get the number of finished jobs.
+        """
         return sum([job.done for job in self._delayed_jobs])
 
     @property
     def n_waiting_jobs(self):
+        """ Get the number of waiting jobs.
+        """
         return sum([job.status == "NOTSTARTED" for job in self._delayed_jobs])
 
     @property
     def n_running_jobs(self):
+        """ Get the number of running jobs.
+        """
         return self.n_jobs - self.n_done_jobs - self.n_waiting_jobs
 
 
