@@ -38,7 +38,7 @@ jobs:
     - name: Compute documentation
       run: |
         mkdir -p tmp/doc
-        sphinxdoc -v 2 -p . -n caravel -o tmp/doc
+        sphinxdoc -v 2 -p . -n hopla -o tmp/doc
         cd tmp/doc
         make raw-html
         ls source/_static
