@@ -142,6 +142,7 @@ class DelayedPbsJob:
         self._executor = executor
         self.job_id = job_id
         self.submission_id = None
+        self.stderr = None
         self.paths = JobPaths(self._executor.folder, self.job_id)
         path = Path(__file__).parent / "pbs_batch_template.txt"
         with open(path, "rt") as of:
@@ -172,8 +173,11 @@ class DelayedPbsJob:
             stdout, stderr = process.communicate()
             stdout = stdout.decode("utf8")
             self.submission_id = stdout.rstrip("\n").split(".")[0]
+            if not self.submission_id.isdigit():
+                self.submission_id = "EXIT"
+                self.stderr = stderr.decode("utf8")
             # print(f"Job {self.submission_id} - {self.paths.submission_file} "
-            #       "is running!")
+            #        "is running!")
             self._register_in_watcher()
 
     def stop(self):
@@ -189,6 +193,8 @@ class DelayedPbsJob:
         """
         if self.submission_id is None:
             return False
+        if self.submission_id == "EXIT":
+            return True
         return self._executor.watcher.is_done(self.submission_id)
 
     @property
@@ -233,9 +239,12 @@ class DelayedPbsJob:
             message.append(f"{prefix}stdout: none")
         if self.paths.stderr.exists():
             message.append(f"<{prefix}stderr: {self.paths.stderr}")
+        elif self.stderr is not None:
+            message.append(f"<{prefix}stderr: {self.stderr}")
         else:
             message.append(f"{prefix}stderr: none")
         return "\n".join(message)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}<job_id={self.job_id}>"
+        return (f"{self.__class__.__name__}<job_id={self.job_id},"
+                f"submission_id={self.submission_id}>")

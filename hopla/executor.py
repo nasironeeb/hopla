@@ -26,6 +26,8 @@ class Executor(abc.ABC):
         folder for storing job submission/output and logs.
     queue: str
         the name of the queue where the jobs will be submited.
+    name: str, default 'hopla'
+        the name of the submitted jobs.
     memory: float , default 2
         the memory allocated to each job (in GB).
     walltime: int default 72
@@ -49,29 +51,34 @@ class Executor(abc.ABC):
     _job_class = DelayedPbsJob
     _watcher_class = PbsInfoWatcher
 
-    def __init__(self, folder, queue, memory=2, walltime=72, n_cpus=1,
-                 n_gpus=0):
+    def __init__(self, folder, queue, name="hopla", memory=2, walltime=72,
+                 n_cpus=1, n_gpus=0):
         self.watcher = self._watcher_class(self._delay_s)
         self.folder = Path(folder).expanduser().absolute()
         self.parameters = {
-            "name": "hopla",
+            "name": name,
             "queue": queue, "memory": memory, "walltime": walltime,
             "ncpus": n_cpus, "ngpus": n_gpus
         }
         self._delayed_jobs = []
 
-    def __call__(self, max_jobs=300):
+    def __call__(self, max_jobs=300, debug=False):
         """ Run jobs controlling the maximum number of concurrent submissions.
 
         Parameters
         ----------
         max_jobs: int, default 300
             the maximum number of concurrent submissions.
+        debug: bool, default False
+            optionaly print job info at each refresh.
         """
         _start = 0
         pbar = tqdm(total=self.n_jobs, desc="QSUB")
         while (self.n_waiting_jobs != 0 or
                not all([job.done for job in self._delayed_jobs])):
+            if debug:
+                print(self.status)
+                print(self._delayed_jobs)
             if self.n_waiting_jobs != 0 and self.n_running_jobs < max_jobs:
                 _delta = max_jobs - self.n_running_jobs
                 _stop = _start + _delta
