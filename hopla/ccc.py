@@ -71,7 +71,7 @@ class DelayedCCCJob(DelayedJob):
     job_id: str
         the job identifier.
     """
-    _hub = "user"
+    _hub = "n4h00001rs"
     _submission_cmd = "ccc_msub"
 
     def __init__(self, delayed_submission, executor, job_id):
