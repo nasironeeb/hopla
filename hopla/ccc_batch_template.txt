@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Parameters
+#MSUB -q {queue}
+#MSUB -Q long
+#MSUB -m workflash,scratch,work
+#MSUB -T {walltime}
+#MSUB -n 1
+#MSUB -c {ncpus}
+#MSUB -E "--gres=gpu:{ngpus}"
+#MSUB -M {memory}
+#MSUB -r {name}
+#MSUB -e {stderr}
+#MSUB -o {stdout}
+#MSUB -A {project_id}
+
+# Environment
+echo $SLURM_JOBID
+echo $HOSTNAME
+module load {modules}
+
+# Command
+{command}
+echo "DONE"

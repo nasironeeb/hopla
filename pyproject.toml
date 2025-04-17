@@ -28,19 +28,46 @@ Tracker = "https://github.com/AGrigis/hopla/issues"
 
 [tool.setuptools]
 platforms = ["Linux", "OSX"]
-include-package-data = false
+include-package-data = true
 
 [tool.setuptools.packages.find]
 exclude = ["doc"]
 namespaces = false
 
-[tool.nosetests]
-verbosity = "2"
-nologcapture = "0"
-cover-package = "hopla"
-with-coverage = "1"
+[tool.setuptools.package-data]
+hopla = [
+    "*_batch_template.txt",
+]
 
 [tool.build_sphinx]
 source-dir = "doc"
 build-dir = "doc/build"
 all_files = "1"
+
+[tool.ruff.lint]
+extend-select = [
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "ISC",  # flake8-implicit-str-concat
+    "PIE",  # flake8-pie
+    "PYI",  # flake8-pyi
+    "SIM",  # flake8-simplify
+    "FLY",  # flynt
+    "I",    # isort
+    "N",    # pep8-naming
+    "PERF", # Perflint
+    "PGH",  # pygrep-hooks
+    "UP",   # pyupgrade
+    "FURB", # refurb
+    "RUF",
+]
+ignore = [
+]
+
+[tool.ruff]
+extend-exclude = [
+    "tests",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/__init__.py" = ["F401"]

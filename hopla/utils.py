@@ -11,6 +11,10 @@ Contains some utility functions.
 """
 
 import shutil
+import subprocess
+import time
+import warnings
+from abc import ABC, abstractmethod
 
 
 class JobPaths:
@@ -51,3 +55,242 @@ class JobPaths:
         """ Generate the stdout file location.
         """
         return self.log_folder / f"{self.job_id}_log.out"
+
+
+class InfoWatcher(ABC):
+    """ An instance of this class is shared by all jobs, and is in charge of
+    calling scheduler to check status for all jobs at once.
+
+    Parameters
+    ----------
+    delay_s: int, default 60
+        maximum delay before each non-forced call to the cluster.
+    """
+    def __init__(self, delay_s=60):
+        self._delay_s = delay_s
+        self._last_status_check = time.time()
+        self._output = b""
+        self._num_calls = 0
+        self._info_dict = {}
+        self._registered = set()
+        self._finished = set()
+
+    def clear(self):
+        """ Clears cache.
+        """
+        self._last_status_check = time.time()
+        self._output = b""
+        self._num_calls = 0
+        self._info_dict = {}
+        self._registered = set()
+        self._finished = set()
+
+    def get_info(self, job_id):
+        """ Returns a dict containing info about the job.
+
+        Parameters
+        ----------
+        job_id: int
+            id of the job on the cluster.
+        """
+        if job_id not in self._registered:
+            self.register_job(job_id)
+        last_check_delta = time.time() - self._last_status_check
+        if last_check_delta > self._delay_s:
+            self.update()
+        return self._info_dict.get(job_id, {})
+
+    def get_state(self, job_id):
+        """ Returns the state of the job.
+
+        Parameters
+        ----------
+        job_id: str
+            id of the job on the cluster.
+        """
+        info = self.get_info(job_id)
+        state = info.get("job_state") or "UNKNOWN"
+        if isinstance(state, (list, tuple)):
+            state = state[-1]
+        return state
+
+    def register_job(self, job_id):
+        """ Register a job on the instance for shared update.
+        """
+        assert isinstance(job_id, str), f"{job_id} - {type(job_id)}"
+        self._registered.add(job_id)
+
+    def update(self):
+        """ Updates the info of all registered jobs.
+        """
+        if len(self._registered) == 0:
+            return
+        self._num_calls += 1
+        try:
+            self._output = subprocess.check_output(
+                self.update_command, shell=True)
+        except Exception as e:
+            warnings.warn(
+                f"Call #{self._num_calls} - Bypassing qstat error {e}, status "
+                "may be inaccurate.", stacklevel=2
+            )
+        else:
+            self._info_dict.update(self.read_info(self._output))
+        self._last_status_check = time.time()
+        active_jobs = self._registered - self._finished
+        for job_id in active_jobs:
+            if self.is_done(job_id):
+                self._finished.add(job_id)
+
+    def is_done(self, job_id):
+        """ Returns whether the job is finished.
+
+        Parameters
+        ----------
+        job_id: str
+            id of the job on the cluster.
+        """
+        state = self.get_state(job_id)
+        return state.upper() not in self.valid_status
+
+    @property
+    @abstractmethod
+    def update_command(self):
+        """ Return the command to list jobs status.
+        """
+
+    @property
+    @abstractmethod
+    def valid_status(self):
+        """ Return the list of valid status.
+        """
+
+    @abstractmethod
+    def read_info(self, string):
+        """ Reads the output of the update command and returns a dictionary
+        containing main jobs information.
+        """
+
+
+class DelayedJob(ABC):
+    """ Represents a job that have been queue for submission by an executor,
+    but hasn't yet been scheduled.
+
+    Parameters
+    ----------
+    delayed_submission: DelayedSubmission
+        a delayed submission allowing to generate the command line to
+        execute.
+    executor: Executor
+        base job executor.
+    job_id: str
+        the job identifier.
+    """
+    def __init__(self, delayed_submission, executor, job_id):
+        self.delayed_submission = delayed_submission
+        self._executor = executor
+        self.job_id = job_id
+        self.submission_id = None
+        self.stderr = None
+        self.paths = JobPaths(self._executor.folder, self.job_id)
+
+    @property
+    def done(self):
+        """ Checks whether the job is finished properly.
+        """
+        if self.submission_id is None:
+            return False
+        if self.submission_id == "EXIT":
+            return True
+        return self._executor.watcher.is_done(self.submission_id)
+
+    @property
+    def status(self):
+        """ Checks the job status.
+        """
+        if self.submission_id is None:
+            return "NOTSTARTED"
+        return self._executor.watcher.get_state(self.submission_id)
+
+    @property
+    def exitcode(self):
+        """ Check if the code finished properly.
+        """
+        if self.paths.stdout.exists():
+            with open(self.paths.stdout) as of:
+                content = of.read().split("##########")[0].strip("\n")
+                return content.split("\n")[-1] == "DONE"
+        return False
+
+    def _register_in_watcher(self):
+        self._executor.watcher.register_job(self.submission_id)
+
+    @property
+    def report(self):
+        """ Generate a report for the submitted job.
+        """
+        message = ["-" * 40]
+        code = "sucess" if self.exitcode else "failure"
+        prefix = f"{self.__class__.__name__}<job_id={self.job_id}>"
+        message.append(f"{prefix}exitcode: {code}")
+        if self.paths.submission_file.exists():
+            message.append(f"{prefix}submission: {self.paths.submission_file}")
+        else:
+            message.append(f"{prefix}submission: none")
+        if self.paths.stdout.exists():
+            message.append(f"{prefix}stdout: {self.paths.stdout}")
+            with open(self.paths.stdout) as of:
+                info = [line.strip("\n") for line in of]
+            message.append(f"{prefix}submission_id: {info[0]}")
+            message.append(f"{prefix}node: {info[1]}")
+        else:
+            message.append(f"{prefix}stdout: none")
+        if self.paths.stderr.exists():
+            message.append(f"<{prefix}stderr: {self.paths.stderr}")
+        elif self.stderr is not None:
+            message.append(f"<{prefix}stderr: {self.stderr}")
+        else:
+            message.append(f"{prefix}stderr: none")
+        return "\n".join(message)
+
+    def start(self):
+        """ Start a job.
+        """
+        self.generate_batch()
+        if self.submission_id is None or self.done:
+            process = subprocess.Popen(
+                [self.start_command, self.paths.submission_file],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            self.submission_id = self.read_jobid(stdout)
+            if not self.submission_id.isdigit():
+                self.submission_id = "EXIT"
+                self.stderr = stderr.decode("utf8")
+            # print(f"Job {self.submission_id} - {self.paths.submission_file} "
+            #        "is running!")
+            self._register_in_watcher()
+
+    def stop(self):
+        """ Stop a job.
+        """
+        if self.submission_id is not None or not self.done:
+            cmd = [self.stop_command, self.job_id]
+            subprocess.check_call(cmd)
+
+    @abstractmethod
+    def read_jobid(self, string):
+        """ Return the started job ID.
+        """
+
+    @property
+    @abstractmethod
+    def start_command(self):
+        """ Return the start job command.
+        """
+
+    @property
+    @abstractmethod
+    def stop_command(self):
+        """ Return the stop job command.
+        """

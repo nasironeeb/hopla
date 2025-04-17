@@ -33,46 +33,42 @@
 Hopla!
 ======
 
+\:+1: If you are using the code please add a star to the repository :+1:
 
-What is hopla?
+
+What Is Hopla?
 --------------
 
-Hopla is a lightweight tool for submitting script for computation within a PBS
-cluster. It basically wraps submission and provide access to logs.
+Hopla is a lightweight tool for submitting script for computation within
+different cluster. It basically wraps submission and provide access to logs.
 
 
-Important links
+Important Links
 ---------------
 
 - Official source code repo: https://github.com/AGrigis/hopla
 - HTML documentation: http://AGrigis.github.io/hopla
 
 
-Usage
------
+Where To Start
+--------------
 
-From inside an environment with hopla installed::
-
-    import hopla
-    from pprint import pprint
-
-    executor = hopla.Executor(folder="/tmp/hopla", queue="Nspin_short",
-                              walltime=1)
-
-    jobs = [executor.submit("sleep", k) for k in range(1, 11)]
-    pprint(jobs)
-
-    executor(max_jobs=2)
-    print(executor.report)
+Examples are available in the `gallery <https://agrigis.github.io/hopla/auto_gallery/index.html>`_. You can also refer to the `API documentation <https://agrigis.github.io/hopla/generated/documentation.html>`_.
 
 
 Install
 -------
 
-Stable release::
+Complete instructions are available `here <https://agrigis.github.io/hopla/generated/installation.html>`_.
 
-    pip install hopla
 
-Main branch::
+Contributing
+------------
 
-    pip install https://github.com/AGrigis/hopla.git
+If you want to contribute to surfify, be sure to review the `contribution guidelines <./CONTRIBUTING.rst>`_.
+
+
+License
+-------
+
+This project is under the following `LICENSE <./LICENSE.rst>`_.

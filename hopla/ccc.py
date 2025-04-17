@@ -10,16 +10,18 @@
 Contains PBS specific functions.
 """
 
+import copy
 import json
 import os
+import subprocess
 from pathlib import Path
 
 from .utils import DelayedJob, InfoWatcher
 
 
-class PbsInfoWatcher(InfoWatcher):
+class CCCInfoWatcher(InfoWatcher):
     """ An instance of this class is shared by all jobs, and is in charge of
-    calling pbs to check status for all jobs at once.
+    calling ccc to check status for all jobs at once.
 
     Parameters
     ----------
@@ -34,27 +36,28 @@ class PbsInfoWatcher(InfoWatcher):
         """ Return the command to list jobs status.
         """
         active_jobs = self._registered - self._finished
-        return "qstat -fx -F json " + " ".join(active_jobs)
+        return "squeue --states=all --json -j " + ",".join(active_jobs)
 
     @property
     def valid_status(self):
         """ Return the list of valid status.
         """
-        return ["R", "Q", "S", "UNKNOWN"]
+        return ["RUNNING", "PENDING", "SUSPENDED", "COMPLETING", "CONFIGURING",
+                "UNKNOWN"]
 
     @classmethod
     def read_info(cls, string):
-        """ Reads the output of qstat and returns a dictionary containing
+        """ Reads the output of squeue and returns a dictionary containing
         main jobs information.
         """
         if not isinstance(string, str):
             string = string.decode()
-        all_stats = {key.split(".")[0]: val
-                     for key, val in json.loads(string)["Jobs"].items()}
+        all_stats = {str(val["job_id"]): val
+                     for val in json.loads(string)["jobs"]}
         return all_stats
 
 
-class DelayedPbsJob(DelayedJob):
+class DelayedCCCJob(DelayedJob):
     """ Represents a job that have been queue for submission by an executor,
     but hasn't yet been scheduled.
 
@@ -68,34 +71,66 @@ class DelayedPbsJob(DelayedJob):
     job_id: str
         the job identifier.
     """
-    _submission_cmd = "qsub"
+    _hub = "user"
+    _submission_cmd = "ccc_msub"
 
     def __init__(self, delayed_submission, executor, job_id):
         super().__init__(delayed_submission, executor, job_id)
-        path = Path(__file__).parent / "pbs_batch_template.txt"
+        path = Path(__file__).parent / "ccc_batch_template.txt"
         with open(path) as of:
             self.template = of.read()
+        image_file = self._executor.parameters["image_path"]
+        assert image_file.is_file(), image_file
+        self.image_name = os.path.basename(image_file).split(".")[0]
 
     def generate_batch(self):
         """ Write the batch file.
         """
+        params = copy.deepcopy(self._executor.parameters)
+        params["walltime"] *= 3600
+        params["memory"] *= 1000
+        self.import_image(params["image_path"])
+        cmd = (f"pcocc-rs run {self._hub}:{self.image_name} "
+               f"{self.delayed_submission.command}")
         with open(self.paths.submission_file, "w") as of:
             if self.paths.stdout.exists():
                 os.remove(self.paths.stdout)
             if self.paths.stderr.exists():
                 os.remove(self.paths.stderr)
             of.write(self.template.format(
-                command=self.delayed_submission.command,
+                command=cmd,
                 stdout=self.paths.stdout,
                 stderr=self.paths.stderr,
-                **self._executor.parameters))
+                **params))
+
+    def import_image(self, image_file):
+        """ Load the docker image if not available.
+        """
+        cmd = ["pcocc-rs", "image", "list", "-r", self._hub]
+        stdout = subprocess.check_output(cmd)
+        if self.image_name not in self.read_index(stdout):
+            cmd = [
+                "pcocc-rs", "image", "import", f"docker-archive:{image_file}",
+                f"{self._hub}:{self.image_name}"]
+            subprocess.check_call(cmd)
+
+    @classmethod
+    def read_index(cls, string):
+        """ Reads the output of of pcocc-rs image list and returns a
+        list available container.
+        """
+        if not isinstance(string, str):
+            string = string.decode()
+        names = [item.strip().split(" ")[0]
+                 for item in string.split("\n")[2:-2]]
+        return names
 
     def read_jobid(self, string):
         """ Return the started job ID.
         """
         if not isinstance(string, str):
             string = string.decode()
-        return string.rstrip("\n").split(".")[0]
+        return string.rstrip("\n").strip().split(" ")[-1]
 
     @property
     def start_command(self):
@@ -107,8 +142,9 @@ class DelayedPbsJob(DelayedJob):
     def stop_command(self):
         """ Return the stop job command.
         """
-        return "qdel"
+        return "ccc_mqdel"
 
     def __repr__(self):
         return (f"{self.__class__.__name__}<job_id={self.job_id},"
-                f"submission_id={self.submission_id}>")
+                f"submission_id={self.submission_id},image={self._hub}:"
+                f"{self.image_name}>")

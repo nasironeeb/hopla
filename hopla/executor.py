@@ -10,14 +10,16 @@
 Contains job execution functions.
 """
 
-import abc
 import time
-from tqdm import tqdm
 from pathlib import Path
+
+from tqdm import tqdm
+
+from .ccc import CCCInfoWatcher, DelayedCCCJob
 from .pbs import DelayedPbsJob, PbsInfoWatcher
 
 
-class Executor(abc.ABC):
+class Executor:
     """ Base job executor.
 
     Parameters
@@ -36,6 +38,12 @@ class Executor(abc.ABC):
         the number of cores allocated for each job.
     n_gpus: int, default 0
         the number of GPUs allocated for each job.
+    modules: list of str, default None
+        the environment modules to be loaded.
+    image_path: str, default None
+        path to an exported docker image.
+    project_id: str, default None
+        the project ID where you have computing hours.
 
     Examples
     --------
@@ -48,17 +56,25 @@ class Executor(abc.ABC):
     _delay_s = 60
     _counter = 0
     _start = time.time()
-    _job_class = DelayedPbsJob
-    _watcher_class = PbsInfoWatcher
 
     def __init__(self, folder, queue, name="hopla", memory=2, walltime=72,
-                 n_cpus=1, n_gpus=0):
+                 n_cpus=1, n_gpus=0, modules=None, image_path=None,
+                 project_id=None):
+        if project_id is None:
+            self._job_class = DelayedPbsJob
+            self._watcher_class = PbsInfoWatcher
+        else:
+            self._job_class = DelayedCCCJob
+            self._watcher_class = CCCInfoWatcher
         self.watcher = self._watcher_class(self._delay_s)
         self.folder = Path(folder).expanduser().absolute()
+        image_path = Path(image_path) if image_path is not None else None
+        modules = modules or []
         self.parameters = {
             "name": name,
             "queue": queue, "memory": memory, "walltime": walltime,
-            "ncpus": n_cpus, "ngpus": n_gpus
+            "ncpus": n_cpus, "ngpus": n_gpus, "modules": ",".join(modules),
+            "image_path": image_path, "project_id": project_id
         }
         self._delayed_jobs = []
 
@@ -73,9 +89,10 @@ class Executor(abc.ABC):
             optionaly print job info at each refresh.
         """
         _start = 0
-        pbar = tqdm(total=self.n_jobs, desc="QSUB")
+        desc = self._job_class._submission_cmd.upper()
+        pbar = tqdm(total=self.n_jobs, desc=desc)
         while (self.n_waiting_jobs != 0 or
-               not all([job.done for job in self._delayed_jobs])):
+               not all(job.done for job in self._delayed_jobs)):
             if debug:
                 print(self.status)
                 print(self._delayed_jobs)
