@@ -40,8 +40,8 @@ class Executor:
         the number of GPUs allocated for each job.
     modules: list of str, default None
         the environment modules to be loaded.
-    image_path: str, default None
-        path to an exported docker image.
+    image: str, default None
+        path to a docker '.tar' image or name of an existing image.
     project_id: str, default None
         the project ID where you have computing hours.
 
@@ -58,7 +58,7 @@ class Executor:
     _start = time.time()
 
     def __init__(self, folder, queue, name="hopla", memory=2, walltime=72,
-                 n_cpus=1, n_gpus=0, modules=None, image_path=None,
+                 n_cpus=1, n_gpus=0, modules=None, image=None,
                  project_id=None):
         if project_id is None:
             self._job_class = DelayedPbsJob
@@ -68,13 +68,12 @@ class Executor:
             self._watcher_class = CCCInfoWatcher
         self.watcher = self._watcher_class(self._delay_s)
         self.folder = Path(folder).expanduser().absolute()
-        image_path = Path(image_path) if image_path is not None else None
         modules = modules or []
         self.parameters = {
             "name": name,
             "queue": queue, "memory": memory, "walltime": walltime,
             "ncpus": n_cpus, "ngpus": n_gpus, "modules": ",".join(modules),
-            "image_path": image_path, "project_id": project_id
+            "image": image, "project_id": project_id
         }
         self._delayed_jobs = []
 

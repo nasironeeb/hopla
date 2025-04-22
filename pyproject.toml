@@ -5,8 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hopla"
 readme = "README.rst"
-requires-python = ">=3.8"
-version = "2.0.0"
+requires-python = ">=3.9"
 authors = [
     {name = "hopla developers", email = "antoine.grigis@cea.fr"},
 ]
@@ -21,6 +20,7 @@ classifiers = [
 dependencies = [
     "tqdm"
 ]
+dynamic = ["version"]
 
 [project.urls]
 Source = "https://github.com/AGrigis/hopla"
@@ -29,6 +29,9 @@ Tracker = "https://github.com/AGrigis/hopla/issues"
 [tool.setuptools]
 platforms = ["Linux", "OSX"]
 include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "hopla.info.__version__"}
 
 [tool.setuptools.packages.find]
 exclude = ["doc"]

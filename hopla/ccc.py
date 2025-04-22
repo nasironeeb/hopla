@@ -79,9 +79,14 @@ class DelayedCCCJob(DelayedJob):
         path = Path(__file__).parent / "ccc_batch_template.txt"
         with open(path) as of:
             self.template = of.read()
-        image_file = self._executor.parameters["image_path"]
-        assert image_file.is_file(), image_file
-        self.image_name = os.path.basename(image_file).split(".")[0]
+        image = self._executor.parameters["image"]
+        assert image is not None, "Please select or give an image."
+        if os.path.isfile(image):
+            self.image_file = image
+            self.image_name = os.path.basename(image).split(".")[0]
+        else:
+            self.image_file = None
+            self.image_name = image
 
     def generate_batch(self):
         """ Write the batch file.
@@ -89,7 +94,7 @@ class DelayedCCCJob(DelayedJob):
         params = copy.deepcopy(self._executor.parameters)
         params["walltime"] *= 3600
         params["memory"] *= 1000
-        self.import_image(params["image_path"])
+        self.import_image()
         cmd = (f"pcocc-rs run {self._hub}:{self.image_name} "
                f"{self.delayed_submission.command}")
         with open(self.paths.submission_file, "w") as of:
@@ -103,14 +108,19 @@ class DelayedCCCJob(DelayedJob):
                 stderr=self.paths.stderr,
                 **params))
 
-    def import_image(self, image_file):
+    def import_image(self):
         """ Load the docker image if not available.
         """
         cmd = ["pcocc-rs", "image", "list", "-r", self._hub]
         stdout = subprocess.check_output(cmd)
         if self.image_name not in self.read_index(stdout):
+            if self.image_file is None:
+                raise ValueError(
+                    f"'{self.image_name}' image not available! Please "
+                    "consider providing the image archive.")
             cmd = [
-                "pcocc-rs", "image", "import", f"docker-archive:{image_file}",
+                "pcocc-rs", "image", "import",
+                f"docker-archive:{self.image_file}",
                 f"{self._hub}:{self.image_name}"]
             subprocess.check_call(cmd)
 
