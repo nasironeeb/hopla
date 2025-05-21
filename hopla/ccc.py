@@ -88,6 +88,21 @@ class DelayedCCCJob(DelayedJob):
             self.image_file = None
             self.image_name = image
 
+    @property
+    def exitcode(self):
+        """ Check if the code finished properly.
+        """
+        exitcode = True
+        if self.paths.stdout.exists():
+            with open(self.paths.stdout) as of:
+                content = of.read().split("##########")[0].strip("\n")
+                exitcode = exitcode and (content.split("\n")[-1] == "DONE")
+        if self.paths.stderr.exists():
+            with open(self.paths.stderr) as of:
+                content = [line.startswith("+ ") for line in of]
+                exitcode = exitcode and all(content)
+        return exitcode
+
     def generate_batch(self):
         """ Write the batch file.
         """

@@ -230,7 +230,7 @@ class DelayedJob(ABC):
         """ Generate a report for the submitted job.
         """
         message = ["-" * 40]
-        code = "sucess" if self.exitcode else "failure"
+        code = "success" if self.exitcode else "failure"
         prefix = f"{self.__class__.__name__}<job_id={self.job_id}>"
         message.append(f"{prefix}exitcode: {code}")
         if self.paths.submission_file.exists():

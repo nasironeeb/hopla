@@ -1,33 +1,33 @@
 **Usage**
 
-|PythonVersion| |License| |PoweredBy|
+|PythonVersion|_ |License| |PoweredBy|_
 
 **Development**
 
-|Pep8| |Doc|
+|Pep8|_ |Doc|_
 
 **Release**
 
-|PyPi|
+|PyPi|_
 
 
 .. |PythonVersion| image:: https://img.shields.io/badge/python-3.8%20%7C%203.12-blue
-   :target: https://github.com/AGrigis/hopla
+.. _PythonVersion: target:: https://github.com/AGrigis/hopla
 
 .. |Pep8| image:: https://github.com/AGrigis/hopla/actions/workflows/pep8.yml/badge.svg
-   :target: https://github.com/AGrigis/hopla/actions
+.. _Pep8: target:: https://github.com/AGrigis/hopla/actions
 
 .. |PyPi| image:: https://badge.fury.io/py/hopla.svg
-   :target: https://badge.fury.io/py/hopla
+.. _PyPi: target:: https://badge.fury.io/py/hopla
 
 .. |Doc| image:: https://github.com/AGrigis/hopla/actions/workflows/documentation.yml/badge.svg
-   :target: http://AGrigis.github.io/hopla
+.. _Doc: target:: http://AGrigis.github.io/hopla
 
 .. |License| image:: https://img.shields.io/badge/License-CeCILLB-blue.svg
-   :target: http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+.. _License: target:: http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 
 .. |PoweredBy| image:: https://img.shields.io/badge/Powered%20by-CEA%2FNeuroSpin-blue.svg
-   :target: https://joliot.cea.fr/drf/joliot/Pages/Entites_de_recherche/NeuroSpin.aspx
+.. _PoweredBy: target:: https://joliot.cea.fr/drf/joliot/Pages/Entites_de_recherche/NeuroSpin.aspx
 
 
 Hopla!
