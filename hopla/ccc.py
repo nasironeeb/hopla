@@ -13,10 +13,14 @@ Contains PBS specific functions.
 import copy
 import json
 import os
+import shutil
 import subprocess
+import textwrap
+import traceback
+import warnings
 from pathlib import Path
 
-from .utils import DelayedJob, InfoWatcher
+from .utils import DelayedJob, InfoWatcher, format_attributes
 
 
 class CCCInfoWatcher(InfoWatcher):
@@ -76,7 +80,13 @@ class DelayedCCCJob(DelayedJob):
 
     def __init__(self, delayed_submission, executor, job_id):
         super().__init__(delayed_submission, executor, job_id)
-        path = Path(__file__).parent / "ccc_batch_template.txt"
+        self.multi_task = isinstance(delayed_submission, (list, tuple))
+        resource_dir = Path(__file__).parent / "resources"
+        if self.multi_task:
+            path = resource_dir / "ccc_multi_batch_template.txt"
+            self.worker_file = resource_dir / "worker.sh"
+        else:
+            path = resource_dir / "ccc_batch_template.txt"
         with open(path) as of:
             self.template = of.read()
         image = self._executor.parameters["image"]
@@ -88,20 +98,18 @@ class DelayedCCCJob(DelayedJob):
             self.image_file = None
             self.image_name = image
 
-    @property
-    def exitcode(self):
-        """ Check if the code finished properly.
-        """
-        exitcode = True
-        if self.paths.stdout.exists():
-            with open(self.paths.stdout) as of:
-                content = of.read().split("##########")[0].strip("\n")
-                exitcode = exitcode and (content.split("\n")[-1] == "DONE")
-        if self.paths.stderr.exists():
-            with open(self.paths.stderr) as of:
-                content = [line.startswith("+ ") for line in of]
-                exitcode = exitcode and all(content)
-        return exitcode
+    # @property
+    # def exitcode(self):
+    #     """ Check if the code finished properly.
+    #     """
+    #     exitcode = True
+    #     if self.paths.stdout.exists():
+    #         exitcode = self._check_is_done(self.paths.stdout)
+    #     if self.paths.stderr.exists():
+    #         with open(self.paths.stderr) as of:
+    #             content = [line.startswith("+ ") for line in of]
+    #             exitcode = exitcode and all(content)
+    #     return exitcode
 
     def generate_batch(self):
         """ Write the batch file.
@@ -109,9 +117,35 @@ class DelayedCCCJob(DelayedJob):
         params = copy.deepcopy(self._executor.parameters)
         params["walltime"] *= 3600
         params["memory"] *= 1000
-        self.import_image()
-        cmd = (f"pcocc-rs run {self._hub}:{self.image_name} "
-               f"{self.delayed_submission.command}")
+        print(params["modules"])
+        if params["modules"] != "":
+            params["modules"] = f"module load {params['modules']}"
+        try:
+            self.import_image()
+        except Exception:
+            err = textwrap.indent(traceback.format_exc(), "   |")
+            warnings.warn(
+                f"Can't import image: {self.image_name}",
+                stacklevel=2
+            )
+            print(err)
+        if self.multi_task:
+            shutil.copy(self.worker_file, self.paths.worker_file)
+            subcmds = [
+                f"1-2 . {self.paths.worker_file} pcocc-rs run "
+                f"{self._hub}:{self.image_name} -- "
+                f"{submission.command}"
+                for submission in self.delayed_submission
+            ]
+            params["logdir"] = self.paths.flux_dir
+            with open(self.paths.task_file, "w") as of:
+                of.write("\n".join(subcmds))
+            cmd = self.paths.task_file
+        else:
+            cmd = (
+                f"pcocc-rs run {self._hub}:{self.image_name} "
+                f"{self.delayed_submission.command}"
+            )
         with open(self.paths.submission_file, "w") as of:
             if self.paths.stdout.exists():
                 os.remove(self.paths.stdout)
@@ -157,6 +191,22 @@ class DelayedCCCJob(DelayedJob):
             string = string.decode()
         return string.rstrip("\n").strip().split(" ")[-1]
 
+    def sub_report(self):
+        report = []
+        prefix = f"{self.__class__.__name__}<job_id={self.job_id}>"
+        if self.multi_task:
+            log_files = list(self.paths.flux_dir.glob("bulk_*"))
+            tasks_ids = [
+                path.name.split("_")[1]
+                for path in log_files
+                if not self._check_is_done(path)
+            ]
+            report.append(
+                f"{prefix}number_of_tasks: {len(self.delayed_submission)}")
+            report.append(f"{prefix}failed_tasks: {tasks_ids}")
+            report.append(f"{prefix}running_tasks: {len(log_files)}")
+        return report
+
     @property
     def start_command(self):
         """ Return the start job command.
@@ -170,6 +220,7 @@ class DelayedCCCJob(DelayedJob):
         return "ccc_mqdel"
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}<job_id={self.job_id},"
-                f"submission_id={self.submission_id},image={self._hub}:"
-                f"{self.image_name}>")
+        return format_attributes(
+            self,
+            attrs=["job_id", "submission_id", "_hub", "image_name"]
+        )

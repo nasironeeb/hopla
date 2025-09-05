@@ -15,10 +15,10 @@
 #MSUB -A {project_id}
 
 # Environment
-echo $SLURM_JOBID
+echo $SLURM_JOB_ID
 echo $HOSTNAME
-module load {modules}
+{modules}
 
 # Command
 {command}
-echo "DONE"
+echo "HOPLASAY-DONE"

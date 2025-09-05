@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from .ccc import CCCInfoWatcher, DelayedCCCJob
 from .pbs import DelayedPbsJob, PbsInfoWatcher
+from .utils import format_attributes
 
 
 class Executor:
@@ -94,7 +95,7 @@ class Executor:
                not all(job.done for job in self._delayed_jobs)):
             if debug:
                 print(self.status)
-                print(self._delayed_jobs)
+                # print(self._delayed_jobs)
             if self.n_waiting_jobs != 0 and self.n_running_jobs < max_jobs:
                 _delta = max_jobs - self.n_running_jobs
                 _stop = _start + _delta
@@ -111,8 +112,8 @@ class Executor:
 
         Parameters
         ----------
-        script: Path/str
-            script to execute.
+        script: Path/str or list of DelayedSubmission
+            script(s) to execute.
         *args: any positional argument of the script.
         **kwargs: any named argument of the script.
 
@@ -122,8 +123,23 @@ class Executor:
             a job instance.
         """
         self._counter += 1
-        job = self._job_class(DelayedSubmission(script, *args, **kwargs), self,
-                              self._counter)
+        if isinstance(script, (list, tuple)):
+            if self._job_class != DelayedCCCJob:
+                raise RuntimeError(
+                    "Submiting many jobs inside an allocation only supported "
+                    "with CCC."
+                )
+            job = self._job_class(
+                script,
+                self,
+                self._counter
+            )
+        else:
+            job = self._job_class(
+                DelayedSubmission(script, *args, **kwargs),
+                self,
+                self._counter
+            )
         self._delayed_jobs.append(job)
         return job
 
@@ -186,5 +202,11 @@ class DelayedSubmission:
         """
         command = [self.script]
         command += [str(e) for e in self.args]
-        command += [f"{-key} {val}" for key, val in self.kwargs.items()]
+        command += [f"-{key} {val}" for key, val in self.kwargs.items()]
         return " ".join(command)
+
+    def __repr__(self):
+        return format_attributes(
+            self,
+            attrs=["command"]
+        )

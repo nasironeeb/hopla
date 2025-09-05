@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Parameters
+#MSUB -q {queue}
+#MSUB -Q long
+#MSUB -m workflash,scratch,work
+#MSUB -T {walltime}
+#MSUB -n {ncpus}
+#MSUB -E "--gres=gpu:{ngpus}"
+#MSUB -M {memory}
+#MSUB -r {name}
+#MSUB -e {stderr}
+#MSUB -o {stdout}
+#MSUB -A {project_id}
+#MSUB -F
+
+# Environment
+echo $SLURM_JOB_ID
+echo $HOSTNAME
+{modules}
+
+# Command
+cd {logdir}
+ccc_mprun -D -v -B {command}
+
+# Flux WIP
+flux job wait --all
+flux jobs -a
+flux jobs -o "{{status}}:{{returncode}}"
+flux jobs --filter=failed --format="{{id}} {{exception.type}} {{exception.note}}"
+
+# End
+echo "HOPLASAY-DONE"

@@ -12,9 +12,36 @@ Contains some utility functions.
 
 import shutil
 import subprocess
+import textwrap
 import time
 import warnings
 from abc import ABC, abstractmethod
+
+
+def format_attributes(cls, attrs=None):
+    """ Automatically format class attributes.
+
+    Paramerters
+    -----------
+    cls: object
+        an input class.
+    attrs: list of str, default None
+        the attributes to add in the final description.
+
+    Returns
+    -------
+    repr: str
+        the class representation.
+    """
+    attrs = attrs or dir(cls)
+    attributes = textwrap.indent(
+        "\n".join([
+            f"{attr}={getattr(cls, attr)}," for attr in attrs
+            if not attr.startswith("__")
+        ]),
+        "  "
+    )
+    return f"{cls.__class__.__name__}(\n{attributes}\n)"
 
 
 class JobPaths:
@@ -55,6 +82,29 @@ class JobPaths:
         """ Generate the stdout file location.
         """
         return self.log_folder / f"{self.job_id}_log.out"
+
+    @property
+    def task_file(self):
+        """ Generate the task file location.
+        """
+        return self.submission_folder / f"{self.job_id}_tasks.txt"
+
+    @property
+    def worker_file(self):
+        """ Generate the worker file location.
+        """
+        return self.submission_folder / "worker.sh"
+
+    @property
+    def flux_dir(self):
+        """ Generate the flux output dir.
+        """
+        path = self.log_folder / f"{self.job_id}_flux"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def __repr__(self):
+        return format_attributes(self)
 
 
 class InfoWatcher(ABC):
@@ -217,10 +267,16 @@ class DelayedJob(ABC):
         """ Check if the code finished properly.
         """
         if self.paths.stdout.exists():
-            with open(self.paths.stdout) as of:
-                content = of.read().split("##########")[0].strip("\n")
-                return content.split("\n")[-1] == "DONE"
+            return self._check_is_done(self.paths.stdout)
         return False
+
+    @classmethod
+    def _check_is_done(cls, path):
+        """ Check if the input file finished by done.
+        """
+        with open(path) as of:
+            content = of.read().split("##########")[0].strip("\n")
+        return "HOPLASAY-DONE" in content.split("\n")
 
     def _register_in_watcher(self):
         self._executor.watcher.register_job(self.submission_id)
@@ -251,7 +307,13 @@ class DelayedJob(ABC):
             message.append(f"<{prefix}stderr: {self.stderr}")
         else:
             message.append(f"{prefix}stderr: none")
+        message.extend(self.sub_report())
         return "\n".join(message)
+
+    def sub_report(self):
+        """ Overload this method to extend the final report.
+        """
+        return []
 
     def start(self):
         """ Start a job.

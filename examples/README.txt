@@ -1,9 +1,9 @@
 .. _sphx_glr_auto_gallery:
 
-Usage Examples
-==============
+Examples
+========
 
-From within an environment with hopla installed, you can seamlessly connect
+From within an environment with ``hopla`` installed, you can seamlessly connect
 to a cluster, configure nodes, and deploy applications while managing
 resources and scaling workloads by running dynamic scripts. The execution
 pipeline is as follows:
@@ -24,6 +24,10 @@ pipeline is as follows:
   an execution report, offering insights into the status, performance, and
   resource usage of each job executed within the cluster.
 
+``hopla`` is designed to run embarrassingly parallel jobs, i.e. independent
+processes in parallel. We recommand to use containers for that purpose.
+These jobs need no communications.
+
 
 How It Works
 ------------
@@ -31,21 +35,22 @@ How It Works
 - **Executor Context**: The `Executor` context manages all cluster
   configurations and task execution.
 
-- **Submit a Job**: The function `executor.submit()` configure as a delayed
+- **Submit a Job**: The function `executor.submit()` configure a delayed
   job to the Executor.
 
 - **Start the Job**: You can either start the job manually or have it
-  automatically executed when executor() is called. You can control
+  automatically executed when `executor()` is called. You can control
   concurrency by setting `max_jobs` to limit the number of tasks running
   simultaneously.
 
 - **Execution Reporting**: Once the job completes, the result is retrieved in
-  the `executor.reprot`.
+  the `executor.reprot` variable.
+
 
 PBS cluster
 -----------
 
-Execution of a simple `sleep` command::
+Execution of 10 simple `sleep` commands::
 
     import hopla
     from pprint import pprint
@@ -53,22 +58,26 @@ Execution of a simple `sleep` command::
     executor = hopla.Executor(folder="/tmp/hopla", queue="Nspin_short",
                               walltime=1)
 
-    jobs = [executor.submit("sleep", k) for k in range(1, 11)]
+    jobs = [
+        executor.submit("sleep", k) for k in range(1, 11)
+    ]
     pprint(jobs)
 
     executor(max_jobs=2)
     print(executor.report)
 
-Execution of a brainprep command available in an apptainer image (adapt and
-pass this command to the `executor.submit()` function)::
+.. tip::
 
-    apptainer run --bind <path> --cleanenv <image_path> brainprep <args>
+    To execute a brainprep command available in an apptainer image, adapt and
+    pass this command to the `executor.submit()` function::
+
+        apptainer run --bind <path> --cleanenv <image_path> brainprep <args>
 
 
 CCC cluster
 -----------
 
-Execution of a simple `sleep` command available in an docker image::
+Execution of 10 simple `sleep` commands available in an docker image::
 
     import hopla
     from pprint import pprint
@@ -77,30 +86,50 @@ Execution of a simple `sleep` command available in an docker image::
                               walltime=1, project_id="genXXX",
                               image="/tmp/hopla/my-docker-img.tar")
 
-    jobs = [executor.submit("sleep", k) for k in range(1, 11)]
+    jobs = [
+        executor.submit("sleep", k) for k in range(1, 11)
+    ]
     pprint(jobs)
 
     executor(max_jobs=2)
     print(executor.report)
 
+Execution of 10 simple `sleep` commands available in an docker image using a
+multi tasks strategy (3 chunks here)::
 
-Execution of a brainprep command available in an docker image (adapt and
-pass this command to the `executor.submit()` function)::
-
-    brainprep <args>
-
-Don't forget to decalre the `n4h00001` hub by copying the 
-`.../n4h00001/n4h00001/config/repositories.yaml` file in your home directory
-`$HOME/.config/pcocc/repositories.yaml`. To list images don't forget to
-export the CCCWORKDIR env variable to n4h00001/n4h00001/gaia.
+    chunks = np.array_split(range(1, 11), 3)
+    jobs = [
+        executor.submit([hopla.DelayedSubmission("sleep", k) for k in c])
+        for c in chunks
+    ]
 
 
-Docker
-------
+.. tip::
 
-You can't export your docker image as follows::
+    To execution a brainprep command available in an docker image, adapt and
+    pass this command to the `executor.submit()` function::
 
-    docker save my-docker-img -o my-docker-img.tar 
+        brainprep <args>
+
+.. important::
+
+    Don't forget to decalre the `n4h00001` hub by copying the 
+    `.../n4h00001/n4h00001/config/repositories.yaml` file in your home directory
+    `$HOME/.config/pcocc/repositories.yaml`.To list images don't forget to
+    also to export the `CCCWORKDIR` env variable to `n4h00001/n4h00001/gaia`.
+
+.. important::
+
+    Don't forget to load the `gcc/11.1.0` module to launch multi tasks jobs,
+    and the `python3/3.12` (or another compatible version of Python) module.
+    Dont't forget also to switch to the appropriate `dfldatadir/XXX` module.
+
+
+.. tip::
+
+    You can't export your docker image in a `.tar` file as follows::
+
+        docker save my-docker-img -o my-docker-img.tar 
 
 
 .. contents:: **Contents**

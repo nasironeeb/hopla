@@ -14,7 +14,7 @@ import json
 import os
 from pathlib import Path
 
-from .utils import DelayedJob, InfoWatcher
+from .utils import DelayedJob, InfoWatcher, format_attributes
 
 
 class PbsInfoWatcher(InfoWatcher):
@@ -72,7 +72,8 @@ class DelayedPbsJob(DelayedJob):
 
     def __init__(self, delayed_submission, executor, job_id):
         super().__init__(delayed_submission, executor, job_id)
-        path = Path(__file__).parent / "pbs_batch_template.txt"
+        resource_dir = Path(__file__).parent / "resources"
+        path = resource_dir / "pbs_batch_template.txt"
         with open(path) as of:
             self.template = of.read()
 
@@ -110,5 +111,7 @@ class DelayedPbsJob(DelayedJob):
         return "qdel"
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}<job_id={self.job_id},"
-                f"submission_id={self.submission_id}>")
+        return format_attributes(
+            self,
+            attrs=["job_id", "submission_id"]
+        )

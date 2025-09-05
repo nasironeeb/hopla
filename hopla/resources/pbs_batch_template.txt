@@ -13,4 +13,4 @@ echo $HOSTNAME
 
 # Command
 {command}
-echo "DONE"
+echo "HOPLASAY-DONE"

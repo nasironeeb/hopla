@@ -39,7 +39,8 @@ namespaces = false
 
 [tool.setuptools.package-data]
 hopla = [
-    "*_batch_template.txt",
+    "resources/*_batch_template.txt",
+    "resources/worker.sh",
 ]
 
 [tool.build_sphinx]
