@@ -39,6 +39,8 @@ class Executor:
         the number of cores allocated for each job.
     n_gpus: int, default 0
         the number of GPUs allocated for each job.
+    n_multi_cpus: int, default 1
+        the number of cores reserved fir each multi-tasks job.
     modules: list of str, default None
         the environment modules to be loaded.
     image: str, default None
@@ -59,7 +61,7 @@ class Executor:
     _start = time.time()
 
     def __init__(self, folder, queue, name="hopla", memory=2, walltime=72,
-                 n_cpus=1, n_gpus=0, modules=None, image=None,
+                 n_cpus=1, n_gpus=0, n_multi_cpus=1, modules=None, image=None,
                  project_id=None):
         if project_id is None:
             self._job_class = DelayedPbsJob
@@ -73,7 +75,8 @@ class Executor:
         self.parameters = {
             "name": name,
             "queue": queue, "memory": memory, "walltime": walltime,
-            "ncpus": n_cpus, "ngpus": n_gpus, "modules": ",".join(modules),
+            "ncpus": n_cpus, "nmulticpus": n_multi_cpus, "ngpus": n_gpus,
+            "modules": ",".join(modules),
             "image": image, "project_id": project_id
         }
         self._delayed_jobs = []

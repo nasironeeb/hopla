@@ -21,8 +21,8 @@ from abc import ABC, abstractmethod
 def format_attributes(cls, attrs=None):
     """ Automatically format class attributes.
 
-    Paramerters
-    -----------
+    Parameters
+    ----------
     cls: object
         an input class.
     attrs: list of str, default None

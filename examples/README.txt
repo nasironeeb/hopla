@@ -36,12 +36,13 @@ How It Works
   configurations and task execution.
 
 - **Submit a Job**: The function `executor.submit()` configure a delayed
-  job to the Executor.
+  job to the Executor. 
 
 - **Start the Job**: You can either start the job manually or have it
   automatically executed when `executor()` is called. You can control
   concurrency by setting `max_jobs` to limit the number of tasks running
-  simultaneously.
+  simultaneously. You can also only generate the batch file associated to
+  a job `job.generate_batch()`.
 
 - **Execution Reporting**: Once the job completes, the result is retrieved in
   the `executor.reprot` variable.
@@ -103,6 +104,15 @@ multi tasks strategy (3 chunks here)::
         for c in chunks
     ]
 
+
+.. tip::
+
+    You need to adapt the the `n_multi_cpus` parameter of the `Executor` in
+    order to fit your need. Don't forget to check that your task fulfill the
+    folowing core/memory ratios:
+    
+    - skylake parititon: 3.6G per core.
+    - rome partition: 1.7G par core.
 
 .. tip::
 

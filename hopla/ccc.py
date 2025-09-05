@@ -130,9 +130,10 @@ class DelayedCCCJob(DelayedJob):
             )
             print(err)
         if self.multi_task:
+            n_multi_cpus = self._executor.parameters["nmulticpus"]
             shutil.copy(self.worker_file, self.paths.worker_file)
             subcmds = [
-                f"1-2 . {self.paths.worker_file} pcocc-rs run "
+                f"1-{n_multi_cpus} . {self.paths.worker_file} pcocc-rs run "
                 f"{self._hub}:{self.image_name} -- "
                 f"{submission.command}"
                 for submission in self.delayed_submission
