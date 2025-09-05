@@ -13,6 +13,7 @@
 #MSUB -e {stderr}
 #MSUB -o {stdout}
 #MSUB -A {project_id}
+#MSUB -F #use the Flux plug
 
 # Environment
 echo $SLURM_JOB_ID
