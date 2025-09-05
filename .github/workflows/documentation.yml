@@ -42,6 +42,7 @@ jobs:
         mkdir -p tmp/doc
         sphinxdoc -v 2 -p . -n hopla -o tmp/doc
         cd tmp/doc
+        mkdir -p source/_static
         make raw-html
         ls source/_static
         ls build/html/_static
@@ -92,6 +93,7 @@ jobs:
         mkdir -p tmp/doc
         sphinxdoc -v 2 -p . -n hopla -o tmp/doc
         cd tmp/doc
+        mkdir -p source/_static
         make raw-html
         ls source/_static
         ls build/html/_static
