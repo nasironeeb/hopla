@@ -110,7 +110,9 @@ to the "sleep" to differentiate pcocc-rs commands and the container commands
 
 .. tip::
 
-    You need to adapt the `n_multi_cpus` parameter of the `Executor` in
+    You need to adapt the 
+    
+the `n_multi_cpus` parameter of the `Executor` in
     order to fit your need. Don't forget to check that your task fulfill the
     folowing core/memory ratios:
     
@@ -126,7 +128,7 @@ to the "sleep" to differentiate pcocc-rs commands and the container commands
 
 .. important::
 
-    Don't forget to declare the `n4h00001` hub by copying the 
+    Don't forget to decalre the `n4h00001` hub by copying the 
     `.../n4h00001/n4h00001/config/repositories.yaml` file in your home directory
     `$HOME/.config/pcocc/repositories.yaml`.To list images don't forget to
     also to export the `CCCWORKDIR` env variable to `n4h00001/n4h00001/gaia`.
