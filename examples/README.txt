@@ -103,8 +103,8 @@ multi tasks strategy (3 chunks here)::
         executor.submit([hopla.DelayedSubmission("-- sleep", k) for k in c])
         for c in chunks
     ]
-    # Since ce are using "pcocc-rs" command to run a container and then run 
-    # "sleep" inside it, we add "--" in the hopla.DelayedSubmission
+Since we are using "pcocc-rs" command to run a container, we need to add "--"
+to the "sleep" to differentiate pcocc-rs commands and the container commands
 
 
 .. tip::
