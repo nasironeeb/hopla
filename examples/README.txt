@@ -88,7 +88,7 @@ Execution of 10 simple `sleep` commands available in an docker image::
                               image="/tmp/hopla/my-docker-img.tar")
 
     jobs = [
-        executor.submit("sleep", k) for k in range(1, 11)
+        executor.submit("-- sleep", k) for k in range(1, 11)
     ]
     pprint(jobs)
 
@@ -100,9 +100,11 @@ multi tasks strategy (3 chunks here)::
 
     chunks = np.array_split(range(1, 11), 3)
     jobs = [
-        executor.submit([hopla.DelayedSubmission("sleep", k) for k in c])
+        executor.submit([hopla.DelayedSubmission("-- sleep", k) for k in c])
         for c in chunks
     ]
+    # Since ce are using "pcocc-rs" command to run a container and then run 
+    # "sleep" inside it, we add "--" in the hopla.DelayedSubmission
 
 
 .. tip::
@@ -130,7 +132,9 @@ multi tasks strategy (3 chunks here)::
 
 .. important::
 
-    Don't forget to load the `gcc/11.1.0` module to launch multi tasks jobs,
+    Don't forget to load the `gcc/11.1.0` module to launch multi tasks jobs,.. tip::
+
+    As  
     and the `python3/3.12` (or another compatible version of Python) module.
     Dont't forget also to switch to the appropriate `dfldatadir/XXX` module.
 

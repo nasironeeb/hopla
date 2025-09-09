@@ -134,7 +134,7 @@ class DelayedCCCJob(DelayedJob):
             shutil.copy(self.worker_file, self.paths.worker_file)
             subcmds = [
                 f"1-{n_multi_cpus} . {self.paths.worker_file} pcocc-rs run "
-                f"{self._hub}:{self.image_name} -- "
+                f"{self._hub}:{self.image_name} "
                 f"{submission.command}"
                 for submission in self.delayed_submission
             ]
