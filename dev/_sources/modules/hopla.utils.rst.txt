@@ -34,6 +34,7 @@ Functions
    :toctree: generated/
    :template: function.rst
 
+    find_stack_level
     format_attributes
 
 
