@@ -5,13 +5,13 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta property="og:title" content="Basic example on how to use the CCC cluster using multi-tasks" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https:///github.com.github.io/auto_examples/plot_ccc_multi_tasks.html" />
+<meta property="og:url" content="https:///github.com.github.io/auto_examples/plot_ccc_flux_multi_tasks.html" />
 <meta property="og:site_name" content="hopla" />
 <meta property="og:description" content="Basic example When you’re running hundreds or thousands of jobs, automation is a necessity. This is where hopla can help you. A simple example of how to use hopla on a CCC cluster. Please check the..." />
 <meta property="og:image" content="https:/github.com.github.io/nasironeeb/_static/hopla-logo.png" />
 <meta property="og:image:alt" content="hopla" />
 <meta name="description" content="Basic example When you’re running hundreds or thousands of jobs, automation is a necessity. This is where hopla can help you. A simple example of how to use hopla on a CCC cluster. Please check the..." />
-<link rel="search" title="Search" href="../search.html" /><link rel="next" title="Basic example on how to use the PBS cluster" href="plot_pbs.html" /><link rel="prev" title="Basic example on how to use the CCC cluster" href="plot_ccc.html" />
+<link rel="search" title="Search" href="../search.html" /><link rel="next" title="Basic example on how to use the PBS cluster" href="plot_pbs.html" /><link rel="prev" title="Basic example on how to use the CCC cluster using multi-tasks" href="plot_ccc_joblib_multi_tasks.html" />
         <link rel="prefetch" href="../_static/hopla-transparent.png" as="image" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2025.07.19 -->
@@ -234,8 +234,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="plot_ccc.html">Basic example on how to use the CCC cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_ccc_joblib_multi_tasks.html">Basic example on how to use the CCC cluster using multi-tasks</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Basic example on how to use the CCC cluster using multi-tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_pbs.html">Basic example on how to use the PBS cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_slurm.html">Basic example on how to use the SLURM cluster</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/index.html">User guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of User guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -243,6 +245,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html">2. Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/how_it_works.html">3. How It Works</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/clusters.html">4. Clusters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/cli.html">5. CLI</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../modules/index.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of API References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -251,26 +254,38 @@
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.ccc.DelayedCCCJob.html">hopla.ccc.DelayedCCCJob</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.config.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.config</span></code>: Configuration used by hopla.</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of hopla.config: Configuration used by hopla.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.cli</span></code>:</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of hopla.cli:</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.cli._strip_ansi.html">hopla.cli._strip_ansi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.cli.main.html">hopla.cli.main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.cli.print_header.html">hopla.cli.print_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.cli.print_toml.html">hopla.cli.print_toml</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.config.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.config</span></code>: Configuration used by hopla.</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of hopla.config: Configuration used by hopla.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.config.Config.html">hopla.config.Config</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.executor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.executor</span></code>: Contains job execution functions.</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of hopla.executor: Contains job execution functions.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.executor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.executor</span></code>: Contains job execution functions.</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of hopla.executor: Contains job execution functions.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.executor.DelayedSubmission.html">hopla.executor.DelayedSubmission</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.executor.Executor.html">hopla.executor.Executor</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.pbs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.pbs</span></code>: Contains PBS specific functions.</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of hopla.pbs: Contains PBS specific functions.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.pbs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.pbs</span></code>: Contains PBS specific functions.</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of hopla.pbs: Contains PBS specific functions.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.pbs.DelayedPbsJob.html">hopla.pbs.DelayedPbsJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.pbs.PbsInfoWatcher.html">hopla.pbs.PbsInfoWatcher</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla</span></code>: <code class="docutils literal notranslate"><span class="pre">hopla</span></code> can automate job creation, submission, monitoring, and resubmission,</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of hopla: hopla can automate job creation, submission, monitoring, and resubmission,</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla</span></code>: <code class="docutils literal notranslate"><span class="pre">hopla</span></code> can automate job creation, submission, monitoring, and resubmission,</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of hopla: hopla can automate job creation, submission, monitoring, and resubmission,</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.DelayedSubmission.html">hopla.DelayedSubmission</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.Executor.html">hopla.Executor</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.utils</span></code>: Contains some utility functions.</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of hopla.utils: Contains some utility functions.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.slurm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.slurm</span></code>: Contains SLURM specific functions.</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of hopla.slurm: Contains SLURM specific functions.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.slurm.DelayedSlurmJob.html">hopla.slurm.DelayedSlurmJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.slurm.SlurmInfoWatcher.html">hopla.slurm.SlurmInfoWatcher</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/hopla.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hopla.utils</span></code>: Contains some utility functions.</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of hopla.utils: Contains some utility functions.</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.utils.DelayedJob.html">hopla.utils.DelayedJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.utils.InfoWatcher.html">hopla.utils.InfoWatcher</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/generated/hopla.utils.JobPaths.html">hopla.utils.JobPaths</a></li>
@@ -311,12 +326,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/nasironeeb/hopla/blob/main/doc/auto_examples/plot_ccc_multi_tasks.rst?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/nasironeeb/hopla/blob/main/doc/auto_examples/plot_ccc_flux_multi_tasks.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/nasironeeb/hopla/edit/main/doc/auto_examples/plot_ccc_multi_tasks.rst" rel="edit" title="Edit this page">
+  <a class="muted-link" href="https://github.com/nasironeeb/hopla/edit/main/doc/auto_examples/plot_ccc_flux_multi_tasks.rst" rel="edit" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -337,11 +352,11 @@
         <article role="main" id="furo-main-content">
           <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p><a class="reference internal" href="#sphx-glr-download-auto-examples-plot-ccc-multi-tasks-py"><span class="std std-ref">Go to the end</span></a>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-plot-ccc-flux-multi-tasks-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="basic-example-on-how-to-use-the-ccc-cluster-using-multi-tasks">
-<span id="sphx-glr-auto-examples-plot-ccc-multi-tasks-py"></span><h1>Basic example on how to use the CCC cluster using multi-tasks<a class="headerlink" href="#basic-example-on-how-to-use-the-ccc-cluster-using-multi-tasks" title="Link to this heading">¶</a></h1>
+<span id="sphx-glr-auto-examples-plot-ccc-flux-multi-tasks-py"></span><h1>Basic example on how to use the CCC cluster using multi-tasks<a class="headerlink" href="#basic-example-on-how-to-use-the-ccc-cluster-using-multi-tasks" title="Link to this heading">¶</a></h1>
 <p>Basic example</p>
 <p>When you’re running hundreds or thousands of jobs, automation is a necessity.
 This is where <code class="docutils literal notranslate"><span class="pre">hopla</span></code> can help you.</p>
@@ -359,11 +374,13 @@ functionalities.</p>
 <section id="executor-context">
 <h2>Executor Context<a class="headerlink" href="#executor-context" title="Link to this heading">¶</a></h2>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../modules/generated/hopla.Executor.html#hopla.Executor" title="hopla.Executor" class="sphx-glr-backref-module-hopla sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">executor</span></a> <span class="o">=</span> <a href="../modules/generated/hopla.Executor.html#hopla.Executor" title="hopla.Executor" class="sphx-glr-backref-module-hopla sphx-glr-backref-type-py-class"><span class="n">hopla</span><span class="o">.</span><span class="n">Executor</span></a><span class="p">(</span>
+    <span class="n">cluster</span><span class="o">=</span><span class="s2">&quot;ccc&quot;</span><span class="p">,</span>
     <span class="n">folder</span><span class="o">=</span><span class="s2">&quot;/tmp/hopla&quot;</span><span class="p">,</span>
     <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;rome&quot;</span><span class="p">,</span>
     <span class="n">image</span><span class="o">=</span><span class="s2">&quot;/tmp/hopla/my-docker-img.tar&quot;</span><span class="p">,</span>
     <span class="n">walltime</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;genXXX&quot;</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -425,12 +442,12 @@ functionalities.</p>
     <span class="nb">print</span><span class="p">(</span><span class="n">of</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/hopla/hopla/examples/plot_ccc_multi_tasks.py:54: UserWarning: Can&#39;t import image: /tmp/hopla/my-docker-img.tar
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/hopla/hopla/examples/plot_ccc_flux_multi_tasks.py:56: UserWarning: Can&#39;t import image: /tmp/hopla/my-docker-img.tar
   jobs[0].generate_batch()
    |Traceback (most recent call last):
-   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 125, in generate_batch
+   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 135, in generate_batch
    |    self.import_image()
-   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 175, in import_image
+   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 213, in import_image
    |    stdout = subprocess.check_output(cmd)
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |  File &quot;/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/subprocess.py&quot;, line 466, in check_output
@@ -448,6 +465,7 @@ functionalities.</p>
 JobPaths(
   flux_dir=/tmp/hopla/logs/1_flux,
   job_id=1,
+  joblib_file=/tmp/hopla/submissions/1_joblib_script.py,
   log_folder=/tmp/hopla/logs,
   stderr=/tmp/hopla/logs/1_log.err,
   stdout=/tmp/hopla/logs/1_log.out,
@@ -500,20 +518,19 @@ echo &quot;HOPLASAY-DONE&quot;
 <section id="start-jobs">
 <h2>Start Jobs<a class="headerlink" href="#start-jobs" title="Link to this heading">¶</a></h2>
 <p>We can’t execute the code on the CI since the CCC infrastructure is not
-avaialable.</p>
+available.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hopla.config</span><span class="w"> </span><span class="kn">import</span> <a href="../modules/generated/hopla.config.Config.html#hopla.config.Config" title="hopla.config.Config" class="sphx-glr-backref-module-hopla-config sphx-glr-backref-type-py-class"><span class="n">Config</span></a>
 
 <span class="k">with</span> <a href="../modules/generated/hopla.config.Config.html#hopla.config.Config" title="hopla.config.Config" class="sphx-glr-backref-module-hopla-config sphx-glr-backref-type-py-class"><span class="n">Config</span></a><span class="p">(</span><span class="n">dryrun</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delay_s</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
     <a href="../modules/generated/hopla.Executor.html#hopla.Executor" title="hopla.Executor" class="sphx-glr-backref-module-hopla sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">executor</span></a><span class="p">(</span><span class="n">max_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>CCC_MSUB:   0%|          | 0/3 [00:00&lt;?, ?it/s]
-/home/runner/work/hopla/hopla/doc/../hopla/utils.py:331: UserWarning: Can&#39;t import image: /tmp/hopla/my-docker-img.tar
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>CCC_MSUB:   0%|          | 0/3 [00:00&lt;?, ?it/s]/home/runner/work/hopla/hopla/doc/../hopla/utils.py:360: UserWarning: Can&#39;t import image: /tmp/hopla/my-docker-img.tar
   self.generate_batch()
    |Traceback (most recent call last):
-   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 125, in generate_batch
+   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 135, in generate_batch
    |    self.import_image()
-   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 175, in import_image
+   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 213, in import_image
    |    stdout = subprocess.check_output(cmd)
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |  File &quot;/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/subprocess.py&quot;, line 466, in check_output
@@ -530,12 +547,12 @@ avaialable.</p>
 
 [command] ccc_msub /tmp/hopla/submissions/1_submission.sh
 
-/home/runner/work/hopla/hopla/doc/../hopla/utils.py:331: UserWarning: Can&#39;t import image: /tmp/hopla/my-docker-img.tar
+CCC_MSUB:  33%|███▎      | 1/3 [00:00&lt;00:00, 255.70it/s]/home/runner/work/hopla/hopla/doc/../hopla/utils.py:360: UserWarning: Can&#39;t import image: /tmp/hopla/my-docker-img.tar
   self.generate_batch()
    |Traceback (most recent call last):
-   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 125, in generate_batch
+   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 135, in generate_batch
    |    self.import_image()
-   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 175, in import_image
+   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 213, in import_image
    |    stdout = subprocess.check_output(cmd)
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |  File &quot;/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/subprocess.py&quot;, line 466, in check_output
@@ -552,12 +569,12 @@ avaialable.</p>
 
 [command] ccc_msub /tmp/hopla/submissions/2_submission.sh
 
-/home/runner/work/hopla/hopla/doc/../hopla/utils.py:331: UserWarning: Can&#39;t import image: /tmp/hopla/my-docker-img.tar
+CCC_MSUB:  67%|██████▋   | 2/3 [00:00&lt;00:00, 287.54it/s]/home/runner/work/hopla/hopla/doc/../hopla/utils.py:360: UserWarning: Can&#39;t import image: /tmp/hopla/my-docker-img.tar
   self.generate_batch()
    |Traceback (most recent call last):
-   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 125, in generate_batch
+   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 135, in generate_batch
    |    self.import_image()
-   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 175, in import_image
+   |  File &quot;/home/runner/work/hopla/hopla/doc/../hopla/ccc.py&quot;, line 213, in import_image
    |    stdout = subprocess.check_output(cmd)
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |  File &quot;/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/subprocess.py&quot;, line 466, in check_output
@@ -574,21 +591,22 @@ avaialable.</p>
 
 [command] ccc_msub /tmp/hopla/submissions/3_submission.sh
 
-CCC_MSUB: 4it [00:03,  1.33it/s]
-CCC_MSUB: 4it [00:06,  1.50s/it]
+CCC_MSUB: 100%|██████████| 3/3 [00:03&lt;00:00,  1.00s/it]
+CCC_MSUB: 100%|██████████| 3/3 [00:03&lt;00:00,  1.00s/it]
+CCC_MSUB: 100%|██████████| 3/3 [00:06&lt;00:00,  2.00s/it]
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.198 seconds)</p>
-<p><strong>Estimated memory usage:</strong>  106 MB</p>
-<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-ccc-multi-tasks-py">
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.232 seconds)</p>
+<p><strong>Estimated memory usage:</strong>  108 MB</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-ccc-flux-multi-tasks-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/9577c50a7e8b30ed9282920f2386e2ba/plot_ccc_multi_tasks.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_ccc_multi_tasks.ipynb</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/2dc37cfddb3953fa5a25cede74981bf8/plot_ccc_flux_multi_tasks.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_ccc_flux_multi_tasks.ipynb</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/7a60c90fc2333b4d3d29f8172100957c/plot_ccc_multi_tasks.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_ccc_multi_tasks.py</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/aa1e5a1fab924b652563401aba8389e4/plot_ccc_flux_multi_tasks.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_ccc_flux_multi_tasks.py</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-zip docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/57271ebce029d4e4f95e3b486dac7d61/plot_ccc_multi_tasks.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_ccc_multi_tasks.zip</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/864dab279201927ac97d538ea4b6a9a3/plot_ccc_flux_multi_tasks.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_ccc_flux_multi_tasks.zip</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -609,14 +627,14 @@ CCC_MSUB: 4it [00:06,  1.50s/it]
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="plot_ccc.html">
+          <a class="prev-page" href="plot_ccc_joblib_multi_tasks.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Basic example on how to use the CCC cluster</div>
+                <div class="title">Basic example on how to use the CCC cluster using multi-tasks</div>
                 
               </div>
             </a>

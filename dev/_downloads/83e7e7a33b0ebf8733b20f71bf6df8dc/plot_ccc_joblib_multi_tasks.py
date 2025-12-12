@@ -26,11 +26,13 @@ from pprint import pprint
 # ----------------
 
 executor = hopla.Executor(
+    cluster="ccc",
     folder="/tmp/hopla",
     queue="rome",
     image="/tmp/hopla/my-docker-img.tar",
     walltime=1,
     project_id="genXXX",
+    backend="joblib",
 )
 
 
@@ -56,8 +58,8 @@ print(jobs[0].paths)
 batch = jobs[0].paths.submission_file
 with open(batch) as of:
     print(of.read())
-tasks = jobs[0].paths.task_file
-with open(tasks) as of:
+script = jobs[0].paths.joblib_file
+with open(script) as of:
     print(of.read())
 
 
@@ -66,7 +68,7 @@ with open(tasks) as of:
 # ----------
 #
 # We can't execute the code on the CI since the CCC infrastructure is not
-# avaialable.
+# available.
 
 from hopla.config import Config
 
