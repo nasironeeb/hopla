@@ -269,15 +269,30 @@ def main():
         required=True,
         help="The maximum number of job submissions to execute concurrently."
     )
+    parser.add_argument(
+        "--venv",
+        action="store_true",
+        help=(
+            "Enable this option to run the command outside of a container. "
+            "In this case, the image environment parameter is automatically "
+            "set to None, so providing it is optional."
+        )
+    )
     args = parser.parse_args()
 
     with open(args.config, "rb") as of:
         config = tomllib.load(of)
     print_toml(config)
 
+    if args.venv:
+        config["environment"]["image"] = ""
     executor = hopla.Executor(
         **config["environment"]
     )
+    if args.venv:
+        executor._job_class._container_cmd = (
+            "{command}"
+        )
 
     commands = config["inputs"]["commands"]
     if not isinstance(commands, (list, tuple)):
@@ -290,7 +305,10 @@ def main():
                 "names must match expression keys."
             )
         df = pd.read_csv(data_file, sep="\t")
-        commands = [commands.format(**dict(row)) for _, row in df.iterrows()]
+        commands = [
+            commands.format(**dict(row)).split(" ")
+            for _, row in df.iterrows()
+        ]
 
     if config.get("multi") is not None:
         chunks = np.array_split(commands, config["multi"]["n_splits"])
