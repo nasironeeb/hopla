@@ -1,6 +1,6 @@
 **Usage**
 
-.. image:: https://img.shields.io/badge/python-3.9%20%7C%203.12-blue
+.. image:: https://img.shields.io/badge/python-3.12-blue
     :target: https://github.com/AGrigis/pysphinxdoc
     :alt: Python Version
 
