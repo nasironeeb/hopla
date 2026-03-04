@@ -115,4 +115,4 @@ Dependencies
 ============
 
 The required dependencies to use the software are listed
-in the file `pyproject.toml <https://github.com/AGrigis/hopla/blob/main/pyproject.toml>`_.
+in the file `pyproject.toml <https://github.com/AGrigis/hopla/blob/master/pyproject.toml>`_.
