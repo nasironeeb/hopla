@@ -9,7 +9,7 @@
 #   $ cd $MODULE_DIR/doc
 #   $ make html-strict
 ###
-name: "DocumentationBuilder"
+name: "DocumentationBuilder[sphinxdoc]"
 
 on:
   push:

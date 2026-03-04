@@ -59,11 +59,14 @@ class Executor:
     n_gpus: int, default 0
         the number of GPUs allocated for each job.
     n_multi_cpus: int, default 1
-        the number of cores reserved fir each multi-tasks job.
+        the number of cores reserved for each multi-tasks job.
     modules: list of str, default None
         the environment modules to be loaded.
     project_id: str, default None
         the project ID where you have computing hours.
+    backend: str, default 'flux'
+        the multi-taks backend to use: 'flux', 'joblib or 'oneshot'. This
+        option is only used with CCC cluster type.
 
     Examples
     --------
@@ -89,7 +92,7 @@ class Executor:
 
     def __init__(self, cluster, folder, queue, image, name="hopla", memory=2,
                  walltime=72, n_cpus=1, n_gpus=0, n_multi_cpus=1, modules=None,
-                 project_id=None):
+                 project_id=None, backend="flux"):
         if cluster == "pbs":
             self._job_class = DelayedPbsJob
             self._watcher_class = PbsInfoWatcher
@@ -103,15 +106,25 @@ class Executor:
             raise ValueError(
                 f"Unsupported cluster type: {cluster}"
             )
+        self.backend = backend
         self.watcher = self._watcher_class(self._delay_s)
         self.folder = Path(folder).expanduser().absolute()
         modules = modules or []
         self.parameters = {
             "name": name,
-            "queue": queue, "memory": memory, "walltime": walltime,
-            "ncpus": n_cpus, "nmulticpus": n_multi_cpus, "ngpus": n_gpus,
+            "queue": queue,
+            "memory": memory,
+            "walltime": walltime,
+            "ncpus": n_cpus,
+            "nmulticpus": n_multi_cpus,
+            "ngpus": n_gpus,
             "modules": ",".join(modules),
-            "image": image, "project_id": project_id
+            "image": (
+                Path(image).expanduser().absolute()
+                if Path(image).is_file()
+                else image
+            ),
+            "project_id": project_id
         }
         self._delayed_jobs = []
 
@@ -143,9 +156,11 @@ class Executor:
                 for job in self._delayed_jobs[_start:_stop]:
                     assert job.status == "NOTSTARTED"
                     job.start(dryrun=dryrun)
+                    pbar.update(1)
+                    pbar.refresh()
                 _start = _stop
-                pbar.update(_delta)
             time.sleep(self._delay_s)
+        pbar.close()
         self.watcher.update()
 
     def submit(self, script, *args, execution_parameters=None, **kwargs):
@@ -156,7 +171,7 @@ class Executor:
         script: Path/str or list of DelayedSubmission
             script(s) to execute.
         *args: any positional argument of the script.
-        execution_parameters: str or list of str
+        execution_parameters: str
             parameters passed to the container during execution.
         **kwargs: any named argument of the script.
 
@@ -180,7 +195,8 @@ class Executor:
             job = self._job_class(
                 script,
                 self,
-                self._counter
+                self._counter,
+                backend=self.backend,
             )
         else:
             job = self._job_class(
